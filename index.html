@@ -13,14 +13,9 @@
     }
     .loja {
       position:absolute;
-      background:#fff;
-      padding:2px 6px;
-      border:1px solid #333;
-      border-radius:4px;
-      font-size:12px;
+      width:60px;
+      height:20px;
       cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
     }
     #popup {
       display:none;
@@ -45,15 +40,13 @@
 <body>
 
 <div id="mapa">
-  <div class="loja" style="top:30px;left:60px;" onmouseover="mostrarPopup('Achadinhos')">Achadinhos</div>
-  <div class="loja" style="top:50px;left:90px;" onmouseover="mostrarPopup('Agibank')">Agibank</div>
-  <div class="loja" style="top:70px;left:120px;" onmouseover="mostrarPopup('Aluga Ibagy')">Aluga Ibagy</div>
-  <div class="loja" style="top:90px;left:150px;" onmouseover="mostrarPopup('Banco BMG')">Banco BMG</div>
-  <div class="loja" style="top:110px;left:180px;" onmouseover="mostrarPopup(`Bob's`)">Bob's</div>
-  <div class="loja" style="top:130px;left:210px;" onmouseover="mostrarPopup('Brasil cacau')">Brasil cacau</div>
-  <div class="loja" style="top:150px;left:240px;" onmouseover="mostrarPopup('Café do Frasquinho')">Café do Frasquinho</div>
-  <div class="loja" style="top:170px;left:270px;" onmouseover="mostrarPopup('Carioca cosmetics')">Carioca cosmetics</div>
-  <div class="loja" style="top:190px;left:300px;" onmouseover="mostrarPopup('Cia do Homem 1')">Cia do Homem 1</div>
+  <div class="loja" style="top:120px;left:80px;" onmouseover="mostrarPopup('Achadinhos')"></div>
+  <div class="loja" style="top:140px;left:160px;" onmouseover="mostrarPopup('Agibank')"></div>
+  <div class="loja" style="top:160px;left:240px;" onmouseover="mostrarPopup('Bob\'s')"></div>
+  <div class="loja" style="top:180px;left:320px;" onmouseover="mostrarPopup('Banco BMG')"></div>
+  <div class="loja" style="top:200px;left:400px;" onmouseover="mostrarPopup('Brasil cacau')"></div>
+  <div class="loja" style="top:220px;left:480px;" onmouseover="mostrarPopup('Café do Frasquinho')"></div>
+  <div class="loja" style="top:240px;left:560px;" onmouseover="mostrarPopup('Cia do Homem 1')"></div>
 </div>
 
 <div id="overlay" onclick="fecharPopup()"></div>
