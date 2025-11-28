@@ -1,241 +1,104 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Mapa de Lojas</title>
-  <style>
-    :root {
-      --hotspot-w: 6;  /* largura em % do mapa */
-      --hotspot-h: 2.8;/* altura em % do mapa */
-    }
-    body { margin:0; font-family:sans-serif; background:#000; }
-    .wrap {
-      position:relative;
-      width:100%;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#111;
-    }
-    #map {
-      max-width:95vw;
-      max-height:95vh;
-      width:auto;
-      height:auto;
-      display:block;
-      object-fit:contain;
-      border:1px solid #222;
-      background:#000;
-    }
-    #layer {
-      position:absolute;
-      pointer-events:none; /* liberamos no editor */
-    }
-    .hotspot {
-      position:absolute;
-      cursor:pointer;
-      pointer-events:auto;
-      background:transparent;
-      outline:0;
-    }
-    /* Mostrar retângulos no modo editor */
-    .editing .hotspot {
-      outline:1px dashed rgba(0,255,127,0.8);
-      background:rgba(0,255,127,0.08);
-    }
+<meta charset="UTF-8">
+<title>Mapa Interativo das Lojas</title>
 
-    #preview {
-      position:fixed;
-      top:10px;
-      right:10px;
-      width:300px;
-      max-width:30vw;
-      background:#fff;
-      border:2px solid #333;
-      padding:6px;
-      display:none;
-      z-index:1000;
-      box-shadow:0 6px 16px rgba(0,0,0,0.4);
-    }
-    #preview img { width:100%; height:auto; display:block; }
-    #hud {
-      position:fixed;
-      left:10px; bottom:10px;
-      background:rgba(0,0,0,0.6);
-      color:#fff;
-      padding:8px 10px;
-      border-radius:6px;
-      font-size:13px;
-      z-index:1001;
-    }
-    #hud kbd {
-      background:#222; padding:2px 6px; border-radius:4px; border:1px solid #444;
-    }
-    #hud .mode { color:#0f8; font-weight:600; }
-    #hud .warn { color:#ff6; }
-  </style>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    font-family: Arial, sans-serif;
+  }
+
+  .map-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #mapa {
+    width: 95vw;
+    height: auto;
+    border: 2px solid #222;
+  }
+
+  /* Hotspots (áreas clicáveis invisíveis) */
+  .hotspot {
+    position: absolute;
+    cursor: pointer;
+    padding: 2px 6px;
+    color: white;
+    font-size: 14px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 4px;
+    transition: 0.2s;
+  }
+
+  .hotspot:hover {
+    background: rgba(255,255,255,0.15);
+  }
+
+  /* Pré-visualização da fachada */
+  #preview {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 260px;
+    background: #fff;
+    border: 3px solid #444;
+    padding: 8px;
+    z-index: 999;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  }
+
+  #preview img {
+    width: 100%;
+    height: auto;
+  }
+</style>
 </head>
+
 <body>
 
-<div class="wrap" id="canvas">
-  <img id="map" src="mapa.jpg" alt="Mapa das lojas">
-  <div id="layer"></div>
+<div class="map-container">
+  <img id="mapa" src="mapa.jpg">
+
+  <!-- EXEMPLOS DE HOTSPOTS (adicione quantos quiser) -->
+  <div class="hotspot" style="top: 22%; left: 12%;" data-img="nluzzi.jpg">Nluzzi</div>
+  <div class="hotspot" style="top: 40%; left: 18%;" data-img="bobs.jpg">Bob's</div>
+  <div class="hotspot" style="top: 61%; left: 45%;" data-img="mc.jpg">Mc Donalds</div>
+  <div class="hotspot" style="top: 72%; left: 62%;" data-img="oboticario.jpg">O Boticário</div>
+
+  <!-- Continue adicionando todos os nomes aqui -->
 </div>
 
-<div id="preview"><img id="preview-img" alt="Fachada"></div>
-
-<div id="hud">
-  <div><span class="mode" id="mode-label">Visualização</span></div>
-  <div>Teclas: <kbd>E</kbd> alterna Editor / Visualização</div>
-  <div class="warn">Dica: clique no mapa (modo Editor) para adicionar áreas sobre os nomes.</div>
+<!-- Caixa do preview -->
+<div id="preview">
+  <img id="preview-img" src="">
 </div>
 
 <script>
-(function(){
-  const map = document.getElementById('map');
-  const layer = document.getElementById('layer');
-  const preview = document.getElementById('preview');
-  const previewImg = document.getElementById('preview-img');
-  const modeLabel = document.getElementById('mode-label');
-  let editing = false;
+  const preview = document.getElementById("preview");
+  const previewImg = document.getElementById("preview-img");
 
-  // Lista de hotspots: {name, x%, y%, w%, h%}
-  let hotspots = loadHotspots();
-
-  function loadHotspots(){
-    try {
-      const saved = localStorage.getItem('hotspots');
-      if (saved) return JSON.parse(saved);
-    } catch(e){}
-    // Começa vazio; você vai posicionar todos no editor
-    return [];
-  }
-  function saveHotspots(){
-    localStorage.setItem('hotspots', JSON.stringify(hotspots));
-  }
-
-  function mapRect(){
-    const r = map.getBoundingClientRect();
-    // layer acompanha o tamanho e posição do map
-    layer.style.left = r.left + 'px';
-    layer.style.top  = r.top  + 'px';
-    layer.style.width  = r.width + 'px';
-    layer.style.height = r.height + 'px';
-    return r;
-  }
-
-  function render(){
-    layer.innerHTML = '';
-    const r = mapRect();
-
-    hotspots.forEach((hs, idx) => {
-      const div = document.createElement('div');
-      div.className = 'hotspot';
-      // converter % para px relativos ao mapa
-      const left = (hs.x/100) * r.width;
-      const top  = (hs.y/100) * r.height;
-      const w    = (hs.w/100) * r.width;
-      const h    = (hs.h/100) * r.height;
-      Object.assign(div.style, {
-        left: left + 'px',
-        top: top + 'px',
-        width: w + 'px',
-        height: h + 'px'
-      });
-
-      // Hover comportamental
-      div.addEventListener('mouseenter', () => showFacade(hs.name));
-      div.addEventListener('mouseleave', hideFacade);
-
-      // Editor: mover com arraste (simples)
-      if (editing) {
-        div.draggable = true;
-        div.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('text/plain', idx.toString());
-        });
-      }
-      layer.appendChild(div);
+  document.querySelectorAll(".hotspot").forEach(hs => {
+    hs.addEventListener("mouseenter", () => {
+      const img = hs.dataset.img;
+      previewImg.src = "fachadas/" + img;  // PASTA DAS FOTOS
+      preview.style.display = "block";
     });
 
-    document.body.classList.toggle('editing', editing);
-    modeLabel.textContent = editing ? 'Editor' : 'Visualização';
-    layer.style.pointerEvents = editing ? 'auto' : 'none';
-  }
-
-  function showFacade(base){
-    const seguro = encodeURI(base);
-    const tries = [seguro, seguro + '.jpeg', seguro + '.jpg', seguro + '.png'];
-    let i = 0;
-    previewImg.onload = () => { preview.style.display = 'block'; };
-    previewImg.onerror = () => {
-      i++;
-      if (i < tries.length) {
-        previewImg.src = tries[i];
-      } else {
-        hideFacade();
-      }
-    };
-    previewImg.src = tries[i];
-  }
-  function hideFacade(){
-    preview.style.display = 'none';
-    previewImg.removeAttribute('src');
-    previewImg.onload = null;
-    previewImg.onerror = null;
-  }
-
-  // Alterna modo Editor
-  window.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'e') {
-      editing = !editing;
-      render();
-    }
+    hs.addEventListener("mouseleave", () => {
+      preview.style.display = "none";
+      previewImg.src = "";
+    });
   });
-
-  // Clique no mapa para adicionar hotspot
-  layer.addEventListener('click', (e) => {
-    if (!editing) return;
-    const r = mapRect();
-    const xpx = e.clientX - r.left;
-    const ypx = e.clientY - r.top;
-    const x = (xpx / r.width) * 100;
-    const y = (ypx / r.height) * 100;
-    const name = prompt('Nome da loja (igual ao arquivo de fachada, sem extensão):');
-    if (!name) return;
-    const w = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hotspot-w')) || 6;
-    const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hotspot-h')) || 2.8;
-    hotspots.push({ name: name.trim(), x, y, w, h });
-    saveHotspots();
-    render();
-  });
-
-  // Soltar arraste para mover hotspot
-  layer.addEventListener('dragover', (e) => {
-    if (!editing) return;
-    e.preventDefault();
-  });
-  layer.addEventListener('drop', (e) => {
-    if (!editing) return;
-    e.preventDefault();
-    const idx = parseInt(e.dataTransfer.getData('text/plain'), 10);
-    if (isNaN(idx)) return;
-    const r = mapRect();
-    const xpx = e.clientX - r.left;
-    const ypx = e.clientY - r.top;
-    hotspots[idx].x = (xpx / r.width) * 100;
-    hotspots[idx].y = (ypx / r.height) * 100;
-    saveHotspots();
-    render();
-  });
-
-  // Ajustar overlay em resize
-  window.addEventListener('resize', render);
-  map.addEventListener('load', render);
-  if (map.complete) render();
-})();
 </script>
 
 </body>
 </html>
-
