@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Mapa Interativo das Lojas</title>
-
 <style>
   body {
     margin: 0;
@@ -11,94 +10,85 @@
     font-family: Arial, sans-serif;
   }
 
-  .map-container {
+  .container {
     position: relative;
     width: 100vw;
     height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
   }
 
   #mapa {
-    width: 95vw;
-    height: auto;
-    border: 2px solid #222;
+    max-width: 95vw;
+    max-height: 95vh;
   }
 
-  /* Hotspots (áreas clicáveis invisíveis) */
   .hotspot {
     position: absolute;
     cursor: pointer;
-    padding: 2px 6px;
-    color: white;
-    font-size: 14px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 4px;
-    transition: 0.2s;
   }
 
-  .hotspot:hover {
-    background: rgba(255,255,255,0.15);
-  }
-
-  /* Pré-visualização da fachada */
+  /* PREVIEW DA FACHADA */
   #preview {
-    display: none;
     position: fixed;
-    top: 20px;
     right: 20px;
-    width: 260px;
+    top: 20px;
+    width: 320px;
     background: #fff;
-    border: 3px solid #444;
-    padding: 8px;
-    z-index: 999;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    border-radius: 6px;
+    border: 2px solid #444;
+    display: none;
+    z-index: 10;
   }
 
   #preview img {
     width: 100%;
-    height: auto;
+    display: block;
   }
 </style>
 </head>
-
 <body>
 
-<div class="map-container">
-  <img id="mapa" src="mapa.jpg">
-
-  <!-- EXEMPLOS DE HOTSPOTS (adicione quantos quiser) -->
-  <div class="hotspot" style="top: 22%; left: 12%;" data-img="nluzzi.jpg">Nluzzi</div>
-  <div class="hotspot" style="top: 40%; left: 18%;" data-img="bobs.jpg">Bob's</div>
-  <div class="hotspot" style="top: 61%; left: 45%;" data-img="mc.jpg">Mc Donalds</div>
-  <div class="hotspot" style="top: 72%; left: 62%;" data-img="oboticario.jpg">O Boticário</div>
-
-  <!-- Continue adicionando todos os nomes aqui -->
-</div>
-
-<!-- Caixa do preview -->
 <div id="preview">
   <img id="preview-img" src="">
 </div>
 
+<div class="container">
+  <img id="mapa" src="mapa.jpg">
+  <div id="layer"></div>
+</div>
+
 <script>
-  const preview = document.getElementById("preview");
-  const previewImg = document.getElementById("preview-img");
+/* -------------------------------------------------------
+   1) SUA LISTA DE HOTSPOTS (VOCÊ VAI ADICIONANDO AQUI)
+------------------------------------------------------- */
+const hotspots = [
+  // EXEMPLO:
+  // { name: "Achadinhos.jpeg", x: 22, y: 18, w: 6, h: 3 }
 
-  document.querySelectorAll(".hotspot").forEach(hs => {
-    hs.addEventListener("mouseenter", () => {
-      const img = hs.dataset.img;
-      previewImg.src = "fachadas/" + img;  // PASTA DAS FOTOS
-      preview.style.display = "block";
-    });
+  // Você só adiciona assim:
+  // { name: "Nome EXATO do arquivo.jpeg", x: %, y: %, w: %, h: % }
 
-    hs.addEventListener("mouseleave", () => {
-      preview.style.display = "none";
-      previewImg.src = "";
-    });
-  });
-</script>
+];
 
-</body>
-</html>
+/* -------------------------------------------------------
+   2) Sistema de Mapa e Hover
+------------------------------------------------------- */
+const mapa = document.getElementById("mapa");
+const layer = document.getElementById("layer");
+const preview = document.getElementById("preview");
+const previewImg = document.getElementById("preview-img");
+
+function renderHotspots() {
+  layer.innerHTML = "";
+
+  const mapRect = mapa.getBoundingClientRect();
+  layer.style.position = "absolute";
+  layer.style.left = mapRect.left + "px";
+  layer.style.top = mapRect.top + "px";
+  layer.style.width = mapRect.width + "px";
+  layer.style.height = mapRect.height + "px";
+
+  hotspots.forEach(hs => {
+    const div = document.createElement("
