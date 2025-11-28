@@ -17,45 +17,42 @@
       height:20px;
       cursor:pointer;
     }
-    #popup {
-      display:none;
+    #fachada {
       position:fixed;
-      top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      background:#fff;
+      top:10px;
+      right:10px;
+      max-width:300px;
       border:2px solid #333;
-      padding:10px;
+      background:#fff;
+      padding:5px;
+      display:none;
       z-index:1000;
     }
-    #popup img { max-width:420px; height:auto; display:block; }
-    #overlay {
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.5);
-      z-index:999;
+    #fachada img {
+      width:100%;
+      height:auto;
+      display:block;
     }
   </style>
 </head>
 <body>
 
 <div id="mapa">
-  <!-- Áreas invisíveis sobre os nomes desenhados no mapa -->
-  <div class="loja" style="top:120px;left:80px;" onmouseover="mostrarPopup('Achadinhos')"></div>
-  <div class="loja" style="top:140px;left:160px;" onmouseover="mostrarPopup('Agibank')"></div>
-  <div class="loja" style="top:160px;left:240px;" onmouseover="mostrarPopup('Bob\'s')"></div>
-  <div class="loja" style="top:180px;left:320px;" onmouseover="mostrarPopup('Banco BMG')"></div>
-  <div class="loja" style="top:200px;left:400px;" onmouseover="mostrarPopup('Brasil cacau')"></div>
-  <div class="loja" style="top:220px;left:480px;" onmouseover="mostrarPopup('Café do Frasquinho')"></div>
-  <div class="loja" style="top:240px;left:560px;" onmouseover="mostrarPopup('Cia do Homem 1')"></div>
-  <!-- Adicione mais lojas conforme necessário -->
+  <!-- Exemplo de áreas invisíveis sobre os nomes desenhados -->
+  <div class="loja" style="top:120px;left:80px;" onmouseover="mostrarFachada('Achadinhos')" onmouseout="esconderFachada()"></div>
+  <div class="loja" style="top:140px;left:160px;" onmouseover="mostrarFachada('Agibank')" onmouseout="esconderFachada()"></div>
+  <div class="loja" style="top:160px;left:240px;" onmouseover="mostrarFachada('Bob\'s')" onmouseout="esconderFachada()"></div>
+  <div class="loja" style="top:180px;left:320px;" onmouseover="mostrarFachada('Banco BMG')" onmouseout="esconderFachada()"></div>
+  <div class="loja" style="top:200px;left:400px;" onmouseover="mostrarFachada('Brasil cacau')" onmouseout="esconderFachada()"></div>
+  <div class="loja" style="top:220px;left:480px;" onmouseover="mostrarFachada('Café do Frasquinho')" onmouseout="esconderFachada()"></div>
+  <div class="loja" style="top:240px;left:560px;" onmouseover="mostrarFachada('Cia do Homem 1')" onmouseout="esconderFachada()"></div>
+  <!-- Adicione as outras 52 lojas aqui com suas posições -->
 </div>
 
-<div id="overlay" onclick="fecharPopup()"></div>
-<div id="popup"><img id="popup-img" src="" alt="Fachada da loja"></div>
+<div id="fachada"><img id="fachada-img" src="" alt="Fachada da loja"></div>
 
 <script>
-function mostrarPopup(nomeBase){
+function mostrarFachada(nomeBase){
   const seguro = encodeURI(nomeBase);
   const candidatos = [
     seguro,
@@ -63,30 +60,27 @@ function mostrarPopup(nomeBase){
     seguro + '.jpg',
     seguro + '.png'
   ];
-  const img = document.getElementById('popup-img');
+  const img = document.getElementById('fachada-img');
   let i = 0;
 
   function tentar() {
     if (i >= candidatos.length) {
-      img.removeAttribute('src');
-      img.alt = 'Imagem não encontrada';
-      document.getElementById('popup').style.display = 'block';
-      document.getElementById('overlay').style.display = 'block';
+      esconderFachada();
       return;
     }
     img.onerror = function(){ i++; tentar(); };
     img.onload = function(){
-      document.getElementById('popup').style.display = 'block';
-      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('fachada').style.display = 'block';
       img.onerror = null; img.onload = null;
     };
     img.src = candidatos[i];
   }
   tentar();
 }
-function fecharPopup(){
-  document.getElementById("popup").style.display="none";
-  document.getElementById("overlay").style.display="none";
+
+function esconderFachada(){
+  document.getElementById('fachada').style.display = 'none';
+  document.getElementById('fachada-img').removeAttribute('src');
 }
 </script>
 
