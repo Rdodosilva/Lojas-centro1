@@ -1,94 +1,91 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <title>Mapa Interativo das Lojas</title>
+
 <style>
-  body {
-    margin: 0;
-    background: #000;
-    font-family: Arial, sans-serif;
-  }
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        text-align: center;
+    }
 
-  .container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    #mapa {
+        width: 90%;
+        margin: auto;
+        margin-top: 30px;
+        position: relative;
+    }
 
-  #mapa {
-    max-width: 95vw;
-    max-height: 95vh;
-  }
+    .loja {
+        position: absolute;
+        cursor: pointer;
+        font-size: 14px;
+    }
 
-  .hotspot {
-    position: absolute;
-    cursor: pointer;
-  }
+    /* Caixa da imagem pop-up */
+    .tooltip {
+        position: absolute;
+        background: #ffffff;
+        padding: 8px;
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 10;
+    }
 
-  /* PREVIEW DA FACHADA */
-  #preview {
-    position: fixed;
-    right: 20px;
-    top: 20px;
-    width: 320px;
-    background: #fff;
-    border-radius: 6px;
-    border: 2px solid #444;
-    display: none;
-    z-index: 10;
-  }
-
-  #preview img {
-    width: 100%;
-    display: block;
-  }
+    .tooltip img {
+        max-width: 180px;
+        border-radius: 5px;
+    }
 </style>
+
 </head>
 <body>
 
-<div id="preview">
-  <img id="preview-img" src="">
+<h2>Mapa Interativo das Lojas</h2>
+
+<div id="mapa">
+    <img src="mapa.jpg" width="100%">
+
+    <!-- Exemplo: cada loja abaixo -->
+    <div class="loja" style="top:22%; left:62%;" data-img="Museu.jpg">Museu</div>
+    <div class="loja" style="top:27%; left:62%;" data-img="CafeDoFrank.jpg">Café do Frank</div>
+    <div class="loja" style="top:36%; left:55%;" data-img="MassaViva.jpg">Massa Viva</div>
+
+    <div class="loja" style="top:47%; left:25%;" data-img="MagazineLuiza.jpg">Magazine Luiza</div>
+    <div class="loja" style="top:48%; left:35%;" data-img="CiaDoH.jpg">Cia do H</div>
+    <div class="loja" style="top:49%; left:45%;" data-img="Panvel.jpg">Panvel</div>
+
+    <!-- Continue adicionando todas as lojas da mesma forma -->
 </div>
 
-<div class="container">
-  <img id="mapa" src="mapa.jpg">
-  <div id="layer"></div>
-</div>
+<div id="tooltip" class="tooltip"></div>
 
 <script>
-/* -------------------------------------------------------
-   1) SUA LISTA DE HOTSPOTS (VOCÊ VAI ADICIONANDO AQUI)
-------------------------------------------------------- */
-const hotspots = [
-  // EXEMPLO:
-  // { name: "Achadinhos.jpeg", x: 22, y: 18, w: 6, h: 3 }
+    const tooltip = document.getElementById("tooltip");
 
-  // Você só adiciona assim:
-  // { name: "Nome EXATO do arquivo.jpeg", x: %, y: %, w: %, h: % }
+    document.querySelectorAll(".loja").forEach(loja => {
+        loja.addEventListener("mouseenter", e => {
+            const img = loja.getAttribute("data-img");
 
-];
+            tooltip.innerHTML = `<img src="${img}">`;
+            tooltip.style.display = "block";
+            tooltip.style.left = (e.pageX + 15) + "px";
+            tooltip.style.top = (e.pageY + 15) + "px";
+        });
 
-/* -------------------------------------------------------
-   2) Sistema de Mapa e Hover
-------------------------------------------------------- */
-const mapa = document.getElementById("mapa");
-const layer = document.getElementById("layer");
-const preview = document.getElementById("preview");
-const previewImg = document.getElementById("preview-img");
+        loja.addEventListener("mousemove", e => {
+            tooltip.style.left = (e.pageX + 15) + "px";
+            tooltip.style.top = (e.pageY + 15) + "px";
+        });
 
-function renderHotspots() {
-  layer.innerHTML = "";
+        loja.addEventListener("mouseleave", () => {
+            tooltip.style.display = "none";
+        });
+    });
+</script>
 
-  const mapRect = mapa.getBoundingClientRect();
-  layer.style.position = "absolute";
-  layer.style.left = mapRect.left + "px";
-  layer.style.top = mapRect.top + "px";
-  layer.style.width = mapRect.width + "px";
-  layer.style.height = mapRect.height + "px";
-
-  hotspots.forEach(hs => {
-    const div = document.createElement("
+</body>
+</html>
