@@ -9,7 +9,7 @@
       position:relative;
       width:100%;
       height:100vh;
-      background:url('mapa.jpeg') no-repeat center/contain;
+      background:url('mapa.jpg') no-repeat center/contain;
     }
     .loja {
       position:absolute;
@@ -19,6 +19,8 @@
       border-radius:4px;
       font-size:12px;
       cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
     }
     #popup {
       display:none;
@@ -30,12 +32,11 @@
       padding:10px;
       z-index:1000;
     }
-    #popup img { max-width:400px; height:auto; }
+    #popup img { max-width:420px; height:auto; display:block; }
     #overlay {
       display:none;
       position:fixed;
-      top:0; left:0;
-      width:100%; height:100%;
+      inset:0;
       background:rgba(0,0,0,0.5);
       z-index:999;
     }
@@ -44,47 +45,52 @@
 <body>
 
 <div id="mapa">
-  <div class="loja" style="top:30px;left:60px;" onmouseover="mostrarPopup('fachadas/Nuzzi')">Nuzzi</div>
-  <div class="loja" style="top:50px;left:80px;" onmouseover="mostrarPopup('fachadas/Para Alugar IBAGY')">Para Alugar IBAGY</div>
-  <div class="loja" style="top:70px;left:100px;" onmouseover="mostrarPopup('fachadas/Botton Utilidades')">Botton Utilidades</div>
-  <div class="loja" style="top:90px;left:120px;" onmouseover="mostrarPopup('fachadas/100%')">100%</div>
-  <div class="loja" style="top:110px;left:140px;" onmouseover="mostrarPopup('fachadas/Artigos Religiosos')">Artigos Religiosos</div>
-  <div class="loja" style="top:130px;left:160px;" onmouseover="mostrarPopup('fachadas/Caia')">Caia</div>
-  <div class="loja" style="top:150px;left:180px;" onmouseover="mostrarPopup('fachadas/Achadinhos')">Achadinhos</div>
-  <div class="loja" style="top:170px;left:200px;" onmouseover="mostrarPopup('fachadas/U M Acessórios')">U M Acessórios</div>
-  <div class="loja" style="top:190px;left:220px;" onmouseover="mostrarPopup('fachadas/Vonny cosmeticos')">Vonny cosmeticos</div>
-  <div class="loja" style="top:210px;left:240px;" onmouseover="mostrarPopup('fachadas/Mosou')">Mosou</div>
-  <div class="loja" style="top:230px;left:260px;" onmouseover="mostrarPopup('fachadas/Café do Frank')">Café do Frank</div>
-  <div class="loja" style="top:250px;left:280px;" onmouseover="mostrarPopup('fachadas/Massa Viva')">Massa Viva</div>
-  <div class="loja" style="top:270px;left:300px;" onmouseover="mostrarPopup('fachadas/Floripa Implante')">Floripa Implante</div>
-  <div class="loja" style="top:290px;left:320px;" onmouseover="mostrarPopup('fachadas/Preço Popular')">Preço Popular</div>
-  <div class="loja" style="top:310px;left:340px;" onmouseover="mostrarPopup('fachadas/Brasil Cacau')">Brasil Cacau</div>
-  <div class="loja" style="top:330px;left:360px;" onmouseover="mostrarPopup('fachadas/Cia do H')">Cia do H</div>
-  <div class="loja" style="top:350px;left:380px;" onmouseover="mostrarPopup('fachadas/Da Praça')">Da Praça</div>
-  <div class="loja" style="top:370px;left:400px;" onmouseover="mostrarPopup('fachadas/Magazine Luiza')">Magazine Luiza</div>
-  <div class="loja" style="top:390px;left:420px;" onmouseover="mostrarPopup('fachadas/Cia do H')">Cia do H</div>
-  <div class="loja" style="top:410px;left:440px;" onmouseover="mostrarPopup('fachadas/Damyller')">Damyller</div>
-  <div class="loja" style="top:430px;left:460px;" onmouseover="mostrarPopup('fachadas/Pop Dente')">Pop Dente</div>
-  <div class="loja" style="top:450px;left:480px;" onmouseover="mostrarPopup('fachadas/Lupo')">Lupo</div>
-  <div class="loja" style="top:470px;left:500px;" onmouseover="mostrarPopup('fachadas/Vivo')">Vivo</div>
-  <div class="loja" style="top:490px;left:520px;" onmouseover="mostrarPopup('fachadas/Bazar das chaves')">Bazar das chaves</div>
-  <div class="loja" style="top:510px;left:540px;" onmouseover="mostrarPopup('fachadas/Panvel')">Panvel</div>
-  <div class="loja" style="top:530px;left:560px;" onmouseover="mostrarPopup('fachadas/Loja de Acessórios')">Loja de Acessórios</div>
-  <div class="loja" style="top:550px;left:580px;" onmouseover="mostrarPopup('fachadas/Ótica Catarinense')">Ótica Catarinense</div>
-  <div class="loja" style="top:570px;left:600px;" onmouseover="mostrarPopup('fachadas/BMG')">BMG</div>
-  <div class="loja" style="top:590px;left:620px;" onmouseover="mostrarPopup('fachadas/Cheirin Bão')">Cheirin Bão</div>
-  <div class="loja" style="top:610px;left:640px;" onmouseover="mostrarPopup('fachadas/Ocbotocario')">Ocbotocario</div>
-  <div class="loja" style="top:630px;left:660px;" onmouseover="mostrarPopup('fachadas/Crefisa')">Crefisa</div>
+  <div class="loja" style="top:30px;left:60px;" onmouseover="mostrarPopup('Achadinhos')">Achadinhos</div>
+  <div class="loja" style="top:50px;left:90px;" onmouseover="mostrarPopup('Agibank')">Agibank</div>
+  <div class="loja" style="top:70px;left:120px;" onmouseover="mostrarPopup('Aluga Ibagy')">Aluga Ibagy</div>
+  <div class="loja" style="top:90px;left:150px;" onmouseover="mostrarPopup('Amo bijuterias')">Amo bijuterias</div>
+  <div class="loja" style="top:110px;left:180px;" onmouseover="mostrarPopup('Banco BMG')">Banco BMG</div>
+  <div class="loja" style="top:130px;left:210px;" onmouseover="mostrarPopup('Bazar das chave - Panvel')">Bazar das chave - Panvel</div>
+  <div class="loja" style="top:150px;left:240px;" onmouseover="mostrarPopup(`Bob's`)">Bob's</div>
+  <div class="loja" style="top:170px;left:270px;" onmouseover="mostrarPopup('Bottom Utilidades')">Bottom Utilidades</div>
+  <div class="loja" style="top:190px;left:300px;" onmouseover="mostrarPopup('Brasil cacau')">Brasil cacau</div>
+  <div class="loja" style="top:210px;left:330px;" onmouseover="mostrarPopup('Café do Frasquinho')">Café do Frasquinho</div>
+  <div class="loja" style="top:230px;left:360px;" onmouseover="mostrarPopup('Carioca cosmetics')">Carioca cosmetics</div>
+  <div class="loja" style="top:250px;left:390px;" onmouseover="mostrarPopup('Cia do Homem 1')">Cia do Homem 1</div>
 </div>
 
 <div id="overlay" onclick="fecharPopup()"></div>
 <div id="popup"><img id="popup-img" src="" alt="Fachada da loja"></div>
 
 <script>
-function mostrarPopup(img){
-  document.getElementById("popup-img").src = img;
-  document.getElementById("popup").style.display="block";
-  document.getElementById("overlay").style.display="block";
+function mostrarPopup(nomeBase){
+  const seguro = encodeURI(nomeBase);
+  const candidatos = [
+    seguro,
+    seguro + '.jpeg',
+    seguro + '.jpg',
+    seguro + '.png'
+  ];
+  const img = document.getElementById('popup-img');
+  let i = 0;
+
+  function tentar() {
+    if (i >= candidatos.length) {
+      img.removeAttribute('src');
+      img.alt = 'Imagem não encontrada';
+      document.getElementById('popup').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+      return;
+    }
+    img.onerror = function(){ i++; tentar(); };
+    img.onload = function(){
+      document.getElementById('popup').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+      img.onerror = null; img.onload = null;
+    };
+    img.src = candidatos[i];
+  }
+  tentar();
 }
 function fecharPopup(){
   document.getElementById("popup").style.display="none";
