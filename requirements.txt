@@ -1,14 +1,2 @@
 streamlit
-pillow
-```
-
-3. **Estrutura final esperada:**
-```
-Lojas-centro1/
-├── app.py
-├── requirements.txt
-├── images/
-│   ├── magazine_luiza.jpg
-│   ├── cia_do_h.jpg
-│   └── ... (suas outras fotos)
-└── README.md
+   pillow
