@@ -1,172 +1,223 @@
 import streamlit as st
-import pandas as pd
-from PIL import Image
-import base64
-from io import BytesIO
+import os
+from pathlib import Path
 
 # Configuração da página
-st.set_page_config(page_title="Mapa de Lojas", layout="wide")
+st.set_page_config(
+    page_title="Mapa de Lojas - Centro",
+    page_icon="🏪",
+    layout="wide"
+)
 
-# CSS customizado para hover
+# CSS customizado
 st.markdown("""
 <style>
-    .store-container {
-        position: relative;
-        display: inline-block;
-        margin: 5px;
-        padding: 8px 12px;
-        background: #f0f2f6;
+    .main {
+        background-color: #f8f9fa;
+    }
+    
+    .mapa-container {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        margin: 20px 0;
+    }
+    
+    .foto-container {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        margin-top: 20px;
+        background: white;
+        padding: 20px;
+    }
+    
+    .store-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .store-name-big {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .instructions {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
         border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .store-container:hover {
-        background: #e0e5eb;
-        transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    .store-name {
-        font-size: 14px;
-        font-weight: 500;
-        color: #1f1f1f;
-    }
-    
-    .section-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 20px 0 10px 0;
-        color: #0e1117;
-        border-bottom: 2px solid #ff4b4b;
-        padding-bottom: 5px;
-    }
-    
-    .street-label {
-        font-size: 16px;
-        font-weight: 600;
-        color: #ff4b4b;
-        margin: 15px 0 10px 0;
+        margin: 20px 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Dados das lojas organizados por localização
-lojas_data = {
-    "Rua Trajano - Esquerda": [
-        "Magazine Luiza", "Cia do H", "Damiller", "Pop Dente", "Lupo", 
-        "ViVo", "Bazar das chaves", "Panvel"
-    ],
-    "Rua Trajano - Direita (Top)": [
-        "Nfuzzi", "Para Alugar IBAGY", "Botton Utilidades", "bob's",
-        "Artigos Religiosos", "Caixa", "Achadinhos", "U Mi Acessórios",
-        "Vonny cosmeticos"
-    ],
-    "Rua Trajano - Direita (Centro)": [
-        "Museu", "Café do Frank", "Massa Viva", "Floripa Implante",
-        "Preço Popular", "Brasil Cacau", "Cia Do H", "Da Praça"
-    ],
-    "Rua Felipe Schmidt - Esquerda": [
-        "Mil Bijus", "Colombo", "top1 Company", "Tim", "Corner bem",
-        "Storil", "Mercadão", "Restaurante Magnolia", "Carioca calçados",
-        "Kotzias", "Floripa Store", "JS Store", "Fuccs", "Vila Sucos",
-        "Carioca cosmeticos", "Irmãos", "Fasbindrt", "Top1 Calçados",
-        "Sabor do Tempero", "Procon"
-    ],
-    "Rua Felipe Schmidt - Direita": [
-        "Loja de Acessórios", "Ótica Catarinense", "BMG", "Trid",
-        "Claro", "Preço Unico", "Amo Biju", "AgiBank", "Cheirln Bão",
-        "Oboticário", "Crefisa", "Ótica Rosangela", "MC Donalds",
-        "Para Alugar", "Outlet Brás", "Suiê", "Tim revenda de chip",
-        "Tudo Dez"
-    ]
+# Mapeamento: Nome no mapa -> Nome do arquivo
+mapeamento_imagens = {
+    # Rua Trajano - Esquerda
+    "Magazine Luiza": "Magazine Luiza.jpeg",
+    "Cia do H": "Cia do Homem.jpeg",
+    "Damiller": "Damyller.jpeg",
+    "Pop Dente": "Pop dente - Lupo.jpeg",
+    "Lupo": "Pop dente - Lupo.jpeg",
+    "ViVo": "Lojas Vivo.jpeg",
+    "Bazar das chaves": "Bazar das chave - Panvel.jpeg",
+    "Panvel": "Bazar das chave - Panvel.jpeg",
+    
+    # Rua Trajano - Direita Superior
+    "Nfuzzi": "Nluzzi.jpeg",
+    "Para Alugar IBAGY": "Aluga Ibagy.jpeg",
+    "Botton Utilidades": "Botton Utilidades.jpeg",
+    "bob's": "Bob's.jpeg",
+    "Artigos Religiosos": "Itens Religiosos.jpeg",
+    "Caixa": "images/caixa.jpeg",  # Adicionar se tiver
+    "Achadinhos": "Achadinhos.jpeg",
+    "U Mi Acessórios": "U mi Acessorios.jpeg",
+    "Vonny cosmeticos": "Vonny cosmeticos.jpeg",
+    
+    # Rua Trajano - Direita Inferior
+    "Museu": "images/museu.jpeg",  # Adicionar se tiver
+    "Café do Frank": "Café do Frank.jpeg",
+    "Massa Viva": "Massa Viva.jpeg",
+    "Floripa Implante": "Foripa Implantes.jpeg",
+    "Preço Popular": "Preço popular.jpeg",
+    "Brasil Cacau": "Brasil cacau.jpeg",
+    "Cia Do H": "Cia do Homem 1.jpeg",
+    "Da Praça": "Da Praça.jpeg",
+    
+    # Rua Felipe Schmidt - Esquerda
+    "Mil Bijus": "Mil Bijus.jpeg",
+    "Colombo": "Colombo.jpeg",
+    "top1 Company": "Top 1 Company.jpeg",
+    "Tim": "Tim.jpeg",
+    "Corner bem": "Restauante Comer bem.jpeg",
+    "Storil": "Estoril.jpeg",
+    "Mercadão": "Mercadão dos Ocúlos.jpeg",
+    "Restaurante Magnolia": "Restaurante Magnolia.jpeg",
+    "Carioca calçados": "carioca calçados.jpeg",
+    "Kotzias": "Kotzias.jpeg",
+    "Floripa Store": "Floripa store.jpeg",
+    "JS Store": "JS Store.jpeg",
+    "Fuccs": "Fucci's.jpeg",
+    "Vila Sucos": "Vita sucos.jpeg",
+    "Carioca cosmeticos": "Carioca cosmeticos.jpeg",
+    "Irmãos": "Irmãos.jpeg",
+    "Fasbindrt": "Fasbinder.jpeg",
+    "Top1 Calçados": "Top 1 calçados.jpeg",
+    "Sabor do Tempero": "Restaurante sabor de tempero.jpeg",
+    "Procon": "Procon.jpeg",
+    
+    # Rua Felipe Schmidt - Direita
+    "Loja de Acessórios": "Loja de acessorios.jpeg",
+    "Ótica Catarinense": "Otica catarinense.jpeg",
+    "BMG": "Banco BMG.jpeg",
+    "Trid": "Trid.jpeg",
+    "Claro": "Claro.jpeg",
+    "Preço Unico": "Preço Unico 80,00.jpeg",
+    "Amo Biju": "Amo bijuterias.jpeg",
+    "AgiBank": "Agibank.jpeg",
+    "Cheirln Bão": "Cheirin bão.jpeg",
+    "Oboticário": "Oboticario.jpeg",
+    "Crefisa": "Crefisa.jpeg",
+    "Ótica Rosangela": "Ótica Rosangela.jpeg",
+    "MC Donalds": "MC Donald.jpeg",
+    "Para Alugar": "Para Alugar.jpeg",
+    "Outlet Brás": "Outlet Brás.jpeg",
+    "Suiê": "Suiê.jpeg",
+    "Tim revenda de chip": "Tim revenda de chip.jpeg",
+    "Tudo Dez": "Tudo dez.jpeg"
 }
 
-# Título principal
-st.title("🗺️ Mapa Interativo de Lojas")
-st.markdown("Passe o mouse sobre as lojas para ver a fachada")
+# Criar lista única de todas as lojas
+todas_lojas = sorted(mapeamento_imagens.keys())
 
-# Seletor de loja para preview
-col1, col2 = st.columns([1, 2])
+# Inicializar session state
+if 'loja_selecionada' not in st.session_state:
+    st.session_state.loja_selecionada = None
 
-with col1:
-    st.markdown("### 📍 Selecione uma loja")
+# Header
+st.title("🗺️ Mapa Interativo de Lojas do Centro")
+
+# Layout principal
+col_mapa, col_foto = st.columns([1.2, 1])
+
+with col_mapa:
+    st.markdown("### 📍 Mapa das Lojas")
     
-    todas_lojas = []
-    for secao, lojas in lojas_data.items():
-        todas_lojas.extend(lojas)
+    # Exibir o mapa
+    if os.path.exists("mapa.jpg"):
+        st.markdown('<div class="mapa-container">', unsafe_allow_html=True)
+        st.image("mapa.jpg", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.error("❌ Arquivo 'mapa.jpg' não encontrado na raiz do projeto")
     
+    st.markdown('<div class="instructions">💡 <b>Instruções:</b> Selecione uma loja na lista ao lado para ver sua fachada</div>', 
+                unsafe_allow_html=True)
+
+with col_foto:
+    st.markdown("### 🏪 Selecione uma Loja")
+    
+    # Seletor de loja
     loja_selecionada = st.selectbox(
-        "Escolha uma loja:",
-        ["Selecione..."] + sorted(todas_lojas),
-        key="loja_select"
+        "Escolha a loja:",
+        ["Selecione uma loja..."] + todas_lojas,
+        key="loja_selector"
     )
-
-with col2:
-    if loja_selecionada != "Selecione...":
-        st.markdown(f"### 🏪 {loja_selecionada}")
-        st.info("📸 Adicione a imagem da fachada em: `images/{nome_da_loja}.jpg`")
+    
+    if loja_selecionada and loja_selecionada != "Selecione uma loja...":
+        st.session_state.loja_selecionada = loja_selecionada
         
-        # Tentar carregar a imagem se existir
-        try:
-            # Normalizar nome do arquivo
-            filename = loja_selecionada.lower().replace(" ", "_").replace("'", "")
-            img_path = f"images/{filename}.jpg"
-            img = Image.open(img_path)
-            st.image(img, caption=f"Fachada - {loja_selecionada}", use_container_width=True)
-        except:
-            st.warning("⚠️ Imagem não encontrada. Adicione em `images/` folder")
+        # Mostrar info da loja
+        st.markdown(f'<div class="store-info"><div class="store-name-big">📍 {loja_selecionada}</div></div>', 
+                   unsafe_allow_html=True)
+        
+        # Buscar e exibir a imagem
+        nome_arquivo = mapeamento_imagens.get(loja_selecionada)
+        
+        if nome_arquivo:
+            # Tentar encontrar o arquivo (com ou sem prefixo images/)
+            caminhos_possiveis = [
+                nome_arquivo,
+                f"images/{nome_arquivo}",
+                nome_arquivo.replace("images/", "")
+            ]
+            
+            imagem_encontrada = False
+            for caminho in caminhos_possiveis:
+                if os.path.exists(caminho):
+                    st.markdown('<div class="foto-container">', unsafe_allow_html=True)
+                    st.image(caminho, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    imagem_encontrada = True
+                    break
+            
+            if not imagem_encontrada:
+                st.warning(f"⚠️ Foto não encontrada: `{nome_arquivo}`")
+                st.info("Verifique se o arquivo está na raiz ou na pasta `images/`")
+        else:
+            st.error("❌ Loja não mapeada. Entre em contato com o suporte.")
+    else:
+        st.info("👈 Veja o mapa ao lado e selecione uma loja acima")
+        
+        # Estatísticas
+        st.markdown("---")
+        st.markdown("**📊 Estatísticas do Mapa:**")
+        st.metric("Total de Lojas", len(todas_lojas))
+        st.metric("Imagens Mapeadas", len([x for x in mapeamento_imagens.values() if not x.startswith("images/")]))
 
-st.divider()
-
-# Renderizar o mapa por seções
-for secao, lojas in lojas_data.items():
-    st.markdown(f'<div class="section-title">{secao}</div>', unsafe_allow_html=True)
-    
-    # Criar grid de lojas
-    cols = st.columns(4)
-    for idx, loja in enumerate(lojas):
-        with cols[idx % 4]:
-            # Criar botão interativo
-            if st.button(loja, key=f"btn_{secao}_{loja}", use_container_width=True):
-                st.session_state.loja_select = loja
-                st.rerun()
-
-st.divider()
-
-# Instruções para setup
-with st.expander("📚 Como usar este projeto"):
-    st.markdown("""
-    ### Estrutura de Pastas
-    ```
-    seu-projeto/
-    ├── app.py                 # Este arquivo
-    ├── images/                # Pasta com fotos das fachadas
-    │   ├── magazine_luiza.jpg
-    │   ├── cia_do_h.jpg
-    │   └── ...
-    ├── requirements.txt       # Dependências
-    └── README.md
-    ```
-    
-    ### Adicionar Imagens
-    1. Crie uma pasta `images/` na raiz do projeto
-    2. Adicione fotos com nomes: `nome_da_loja.jpg`
-    3. Use letras minúsculas e substitua espaços por `_`
-    
-    ### Deploy no Streamlit Cloud
-    1. Faça upload no GitHub
-    2. Acesse [share.streamlit.io](https://share.streamlit.io)
-    3. Conecte seu repositório
-    4. Deploy automático! 🚀
-    
-    ### Requirements.txt
-    ```
-    streamlit
-    pandas
-    pillow
-    ```
-    """)
-
+# Footer
 st.markdown("---")
-st.caption("💡 Dica: Organize as imagens na pasta `images/` com nomes padronizados")
+st.caption("🏢 Mapa das lojas do centro | Desenvolvido para apresentação executiva")
+
+# Botão de reset (opcional)
+if st.session_state.loja_selecionada:
+    if st.button("🔄 Resetar Seleção", use_container_width=True):
+        st.session_state.loja_selecionada = None
+        st.rerun()
