@@ -58,7 +58,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Mapeamento: Nome no mapa -> Nome do arquivo
+# Mapeamento: Nome → Arquivo da imagem
 mapeamento_imagens = {
     # Rua Trajano - Esquerda
     "Magazine Luiza": "Magazine Luiza.jpeg",
@@ -69,7 +69,7 @@ mapeamento_imagens = {
     "ViVo": "Lojas Vivo.jpeg",
     "Bazar das chaves": "Bazar das chave - Panvel.jpeg",
     "Panvel": "Bazar das chave - Panvel.jpeg",
-    
+
     # Rua Trajano - Direita Superior
     "Nfuzzi": "Nluzzi.jpeg",
     "Para Alugar IBAGY": "Aluga Ibagy.jpeg",
@@ -80,7 +80,7 @@ mapeamento_imagens = {
     "Achadinhos": "Achadinhos.jpeg",
     "U Mi Acessórios": "U mi Acessorios.jpeg",
     "Vonny cosmeticos": "Vonny cosmeticos.jpeg",
-    
+
     # Rua Trajano - Direita Inferior
     "Museu": "images/museu.jpeg",
     "Café do Frank": "Café do Frank.jpeg",
@@ -90,7 +90,7 @@ mapeamento_imagens = {
     "Brasil Cacau": "Brasil cacau.jpeg",
     "Cia Do H": "Cia do Homem 1.jpeg",
     "Da Praça": "Da Praça.jpeg",
-    
+
     # Rua Felipe Schmidt - Esquerda
     "Mil Bijus": "Mil Bijus.jpeg",
     "Colombo": "Colombo.jpeg",
@@ -112,7 +112,7 @@ mapeamento_imagens = {
     "Top1 Calçados": "Top 1 calçados.jpeg",
     "Sabor do Tempero": "Restaurante sabor de tempero.jpeg",
     "Procon": "Procon.jpeg",
-    
+
     # Rua Felipe Schmidt - Direita
     "Loja de Acessórios": "Loja de acessorios.jpeg",
     "Ótica Catarinense": "Otica catarinense.jpeg",
@@ -137,78 +137,77 @@ mapeamento_imagens = {
 # Lista única de lojas
 todas_lojas = sorted(mapeamento_imagens.keys())
 
-# Inicializar session state
+# Session state
 if 'loja_selecionada' not in st.session_state:
     st.session_state.loja_selecionada = None
 
-# Header
+# ---- TÍTULO ÚNICO ----
 st.title("🗺️ Mapa das Lojas")
 
 # Layout principal
 col_mapa, col_foto = st.columns([1.2, 1])
 
 with col_mapa:
+    st.markdown("### 📍 Mapa das Lojas")
 
-    # Exibir o mapa
     if os.path.exists("mapa.jpg"):
         st.markdown('<div class="mapa-container">', unsafe_allow_html=True)
         st.image("mapa.jpg", use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.error("❌ Arquivo 'mapa.jpg' não encontrado na raiz do projeto")
-    
+
     st.markdown(
-        '<div class="instructions">💡 <b>Dica:</b> Selecione uma loja ao lado para ver sua fachada.</div>',
+        '<div class="instructions">💡 <b>Instruções:</b> Selecione uma loja ao lado para ver a fachada</div>',
         unsafe_allow_html=True
     )
 
 with col_foto:
     st.markdown("### 🏪 Selecione uma Loja")
-    
+
     loja_selecionada = st.selectbox(
         "Escolha a loja:",
         ["Selecione uma loja..."] + todas_lojas,
         key="loja_selector"
     )
-    
+
     if loja_selecionada and loja_selecionada != "Selecione uma loja...":
         st.session_state.loja_selecionada = loja_selecionada
-        
+
         st.markdown(
             f'<div class="store-info"><div class="store-name-big">📍 {loja_selecionada}</div></div>',
             unsafe_allow_html=True
         )
-        
+
         nome_arquivo = mapeamento_imagens.get(loja_selecionada)
-        
+
         if nome_arquivo:
-            caminhos_possiveis = [
+            caminhos = [
                 nome_arquivo,
                 f"images/{nome_arquivo}",
                 nome_arquivo.replace("images/", "")
             ]
-            
-            imagem_encontrada = False
-            for caminho in caminhos_possiveis:
+
+            encontrado = False
+            for caminho in caminhos:
                 if os.path.exists(caminho):
                     st.markdown('<div class="foto-container">', unsafe_allow_html=True)
                     st.image(caminho, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-                    imagem_encontrada = True
+                    encontrado = True
                     break
-            
-            if not imagem_encontrada:
+
+            if not encontrado:
                 st.warning(f"⚠️ Foto não encontrada: `{nome_arquivo}`")
-                st.info("Verifique se a imagem está na raiz ou em `images/`")
         else:
             st.error("❌ Loja não mapeada.")
     else:
-        st.info("👈 Veja o mapa ao lado e selecione uma loja acima.")
-        
+        st.info("👈 Veja o mapa e selecione uma loja")
+
         st.markdown("---")
         st.markdown("**📊 Estatísticas do Mapa:**")
         st.metric("Total de Lojas", len(todas_lojas))
-        st.metric("Imagens Mapeadas", len([x for x in mapeamento_imagens.values()]))
+        st.metric("Imagens Mapeadas", len(mapeamento_imagens))
 
 # Footer
 st.markdown("---")
