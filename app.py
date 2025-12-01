@@ -11,64 +11,69 @@ st.set_page_config(
 )
 
 # ========================== #
-# CSS — TEMA ESCURO + TEXTO PRETO
+# CSS — TEMA ESCURO TOTAL
 # ========================== #
 st.markdown("""
 <style>
 
-/* Fundo geral claro para texto preto */
+/* Fundo geral preto */
 .main {
-    background-color: #f2f2f2 !important;
+    background-color: #000000 !important;
 }
 
-/* Texto preto em todo o app */
+/* Texto branco global */
 h1, h2, h3, h4, h5, h6,
 label, p, span, div, .stMarkdown {
-    color: black !important;
+    color: #ffffff !important;
 }
 
-/* Containers (mapa e foto) */
+/* Containers escuros */
 .mapa-container, .foto-container {
     border-radius: 18px;
     overflow: hidden;
-    background-color: #ffffff !important;
+    background-color: #111111 !important;
     padding: 15px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.20);
+    box-shadow: 0 6px 25px rgba(255,255,255,0.08);
     margin-bottom: 20px;
 }
 
 /* Card da loja */
 .store-info {
-    background: linear-gradient(135deg, #c9c9c9 0%, #e6e6e6 100%);
-    color: black !important;
+    background: linear-gradient(135deg, #1c1c1c 0%, #2b2b2b 100%);
+    color: #ffffff !important;
     padding: 22px;
     border-radius: 12px;
     font-size: 22px;
     text-align: center;
     margin-bottom: 18px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 14px rgba(255,255,255,0.10);
 }
 
-/* Selectbox texto preto */
+/* Selectbox texto branco */
 .css-2trqyj, .stSelectbox div, .stSelectbox label {
-    color: black !important;
+    color: #ffffff !important;
 }
 
-/* Borda escura no selectbox */
+/* Borda ciano no selectbox */
 .stSelectbox > div > div {
-    border: 1px solid #333 !important;
+    border: 1px solid #00c8ff !important;
 }
 
-/* Mapão */
+/* Imagem do mapa */
 .map-img {
     width: 100%;
     max-height: 900px;
     object-fit: contain;
 }
 
-/* Sidebar */
+/* Sidebar dark */
 [data-testid="stSidebar"] {
-    background-color: #e6e6e6 !important;
+    background-color: #0f0f0f !important;
+}
+
+/* Sidebar texto */
+[data-testid="stSidebar"] * {
+    color: #ffffff !important;
 }
 
 </style>
