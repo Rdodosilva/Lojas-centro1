@@ -11,70 +11,77 @@ st.set_page_config(
 )
 
 # ========================== #
-# TEMA ESCURO (CSS)
+# CSS — DARK MODE + MAPA MAIOR + SELECT PRETO
 # ========================== #
 st.markdown("""
 <style>
 
-/* Fundo geral */
+/* Tema escuro geral */
 .main {
     background-color: #0f0f0f !important;
 }
+[data-testid="stSidebar"] {
+    background-color: #111 !important;
+}
 
-/* Títulos */
-h1, h2, h3, h4, h5, h6, label, p, span, div, .stMarkdown {
+/* Títulos e textos */
+h1, h2, h3, h4, h5, h6, .stMarkdown, label, p, span, div {
     color: white !important;
 }
 
-/* Containers */
-.mapa-container, .foto-container {
+/* Container do MAPA */
+.mapa-container {
     border-radius: 18px;
     overflow: hidden;
     background-color: #1a1a1a;
-    padding: 15px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
 
-/* Card da loja */
+/* AUMENTA O MAPA */
+img {
+    max-height: 1100px !important;
+    object-fit: contain;
+}
+
+/* Card da loja selecionada */
 .store-info {
     background: linear-gradient(135deg, #3a0ca3 0%, #7209b7 100%);
     color: white !important;
-    padding: 22px;
+    padding: 18px;
     border-radius: 12px;
-    font-size: 22px;
+    font-size: 24px;
     text-align: center;
     margin-bottom: 18px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.45);
 }
 
-/* Selectbox */
-.css-2trqyj, .stSelectbox div, .stSelectbox label {
-    color: white !important;
+/* Card da foto */
+.foto-container {
+    background-color: #1a1a1a;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
 }
 
-/* Borda roxa no select */
+/* Selectbox — texto preto para melhor leitura */
+div[data-baseweb="select"] * {
+    color: black !important;
+    font-weight: 600;
+}
+
+/* Caixa do select */
 .stSelectbox > div > div {
-    border: 1px solid #7209b7 !important;
-}
-
-/* Mapa maior */
-.map-img {
-    width: 100%;
-    max-height: 900px;
-    object-fit: contain;
-}
-
-/* Scroll da sidebar */
-[data-testid="stSidebar"] {
-    background-color: #111 !important;
+    border: 2px solid #7209b7 !important;
+    border-radius: 10px !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # ========================== #
-# MAPA DE ARQUIVOS
+# MAPEAMENTO DAS LOJAS
 # ========================== #
 mapeamento_imagens = {
     "Magazine Luiza": "Magazine Luiza.jpeg",
@@ -145,39 +152,34 @@ mapeamento_imagens = {
 
 todas_lojas = sorted(mapeamento_imagens.keys())
 
-if 'loja' not in st.session_state:
-    st.session_state.loja = None
-
 # ========================== #
-# TÍTULO PRINCIPAL
+# TÍTULO
 # ========================== #
 st.markdown("## 🗺️ Mapa das Lojas")
 
 # ========================== #
 # LAYOUT
 # ========================== #
-col_mapa, col_info = st.columns([1.3, 1])
+col_mapa, col_info = st.columns([1.5, 1])
 
 # -------- MAPA -------- #
 with col_mapa:
-    st.markdown("### 📍 Mapa")
+    st.markdown("### 📍 Mapa Completo")
 
     if os.path.exists("mapa.jpg"):
         st.markdown('<div class="mapa-container">', unsafe_allow_html=True)
-        st.image("mapa.jpg", use_column_width=True, output_format="PNG", caption="")
+        st.image("mapa.jpg", use_column_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.error("❌ Arquivo 'mapa.jpg' não encontrado.")
 
-# -------- INFO LOJA -------- #
+# -------- INFORMAÇÕES -------- #
 with col_info:
     st.markdown("### 🏪 Selecione uma Loja")
 
     loja = st.selectbox("Escolha a loja:", [""] + todas_lojas)
 
     if loja:
-        st.session_state.loja = loja
-
         st.markdown(
             f'<div class="store-info">📍 {loja}</div>',
             unsafe_allow_html=True
@@ -185,24 +187,20 @@ with col_info:
 
         nome_arquivo = mapeamento_imagens.get(loja)
 
-        if nome_arquivo:
-            caminhos = [
-                nome_arquivo,
-                f"images/{nome_arquivo}"
-            ]
+        caminhos = [nome_arquivo, f"images/{nome_arquivo}"]
+        encontrada = False
 
-            encontrada = False
-            for c in caminhos:
-                if os.path.exists(c):
-                    st.markdown('<div class="foto-container">', unsafe_allow_html=True)
-                    st.image(c, use_column_width=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
-                    encontrada = True
-                    break
+        for c in caminhos:
+            if c and os.path.exists(c):
+                st.markdown('<div class="foto-container">', unsafe_allow_html=True)
+                st.image(c, use_column_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+                encontrada = True
+                break
 
-            if not encontrada:
-                st.warning(f"⚠️ Foto não encontrada: {nome_arquivo}")
+        if not encontrada:
+            st.warning(f"⚠️ Foto não encontrada: {nome_arquivo}")
 
 # Rodapé
 st.markdown("---")
-st.caption("Mapa das lojas do centro — Desenvolvido para apresentação executiva")
+st.caption("Mapa das lojas do centro — Visualização executiva")
