@@ -1,41 +1,88 @@
 import streamlit as st
-from PIL import Image
+import base64
 import os
 
-# ======================
-# CONFIGURAÇÃO DA PÁGINA
-# ======================
 st.set_page_config(page_title="Mapa Interativo", layout="wide")
 
-st.title("🗺️ Mapa Interativo")
-st.write("Passe o mouse e selecione as fachadas das lojas conforme o mapa.")
+st.title("🗺️ Mapa Interativo com Hover")
 
-# ======================
-# EXIBIR MAPA PRINCIPAL
-# ======================
-MAPA = "mapa.jpg"   # nome do arquivo do mapa
-
-if os.path.exists(MAPA):
-    st.image(MAPA, caption="Mapa das Lojas", use_column_width=True)
+# ===== CARREGA O MAPA =====
+mapa_path = "mapa.jpg"
+if not os.path.exists(mapa_path):
+    st.error("Arquivo mapa.jpg não encontrado.")
 else:
-    st.error(f"⚠️ Arquivo '{MAPA}' não encontrado. Coloque o mapa.jpg na raiz do projeto.")
+    st.image(mapa_path, use_column_width=True)
 
-# ======================
-# LISTAR IMAGENS DE LOJAS
-# ======================
-st.subheader("📸 Fachadas das Lojas")
+st.write("Passe o mouse sobre os nomes no mapa para ver as fachadas.")
 
-st.write("Coloque todas as imagens das fachadas **na mesma pasta do app.py**.")
+# ===== CARREGAR TODAS AS IMAGENS DAS FACHADAS =====
+def carregar_imagem_base64(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
-# Todos os arquivos de imagem exceto o mapa
-imagens = [
-    arq for arq in os.listdir('.')
-    if arq.lower().endswith((".jpg", ".jpeg", ".png"))
-    and arq != MAPA
+# mapeamento automático: usa o nome do arquivo como chave (sem extensão)
+mapeamento = {}
+for arq in os.listdir('.'):
+    if arq.lower().endswith((".jpg", ".jpeg", ".png")) and arq != "mapa.jpg":
+        chave = os.path.splitext(arq)[0].strip().lower()  # nome base
+        mapeamento[chave] = carregar_imagem_base64(arq)
+
+# ===== CSS PARA O POPUP =====
+st.markdown("""
+<style>
+.tooltip {
+  position: relative;
+  display: inline-block;
+  font-weight: bold;
+  color: #00e1ff;
+  cursor: pointer;
+}
+
+.tooltip .tooltip-image {
+  visibility: hidden;
+  width: 260px;
+  background: #000;
+  padding: 6px;
+  border-radius: 10px;
+  position: absolute;
+  z-index: 10;
+  top: 20px;
+  left: 0px;
+}
+
+.tooltip:hover .tooltip-image {
+  visibility: visible;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ===== GERAR HTML DINÂMICO DOS NOMES =====
+# o usuário vai colocar manualmente a lista de nomes conforme aparece no mapa
+# você precisa substituir abaixo pelos nomes EXATOS do mapa!
+
+nomes_no_mapa = [
+    "niuzzi",
+    "para alugar ibagy",
+    "botton utilidades",
+    "bob's",
+    "outlet brás",
+    "suie",
+    "tim revenda de chip",
+    "tudo dez"
 ]
 
-if len(imagens) == 0:
-    st.warning("Nenhuma fachada encontrada. Adicione imagens .jpg/.png na pasta do projeto.")
-else:
-    escolha = st.selectbox("Selecione a loja:", sorted(imagens))
-    st.image(escolha, caption=escolha, use_column_width=True)
+html = "<h3>Lojas Detectadas</h3>"
+
+for nome in nomes_no_mapa:
+    chave = nome.lower().strip()
+    if chave in mapeamento:
+        img64 = mapeamento[chave]
+        html += f"""
+        <div class='tooltip'>{nome}
+            <img class='tooltip-image' src='data:image/jpeg;base64,{img64}' />
+        </div><br>
+        """
+    else:
+        html += f"<div style='color:red'>{nome} — imagem não encontrada</div>"
+
+st.markdown(html, unsafe_allow_html=True)
