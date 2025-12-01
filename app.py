@@ -5,7 +5,7 @@ from pathlib import Path
 # Configuração da página
 st.set_page_config(
     page_title="Mapa das Lojas",
-    page_icon="🏪",
+    page_icon="🗺️",
     layout="wide"
 )
 
@@ -58,7 +58,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Mapeamento: Nome → Arquivo da imagem
+# Mapeamento: Nome no mapa -> Nome do arquivo
 mapeamento_imagens = {
     # Rua Trajano - Esquerda
     "Magazine Luiza": "Magazine Luiza.jpeg",
@@ -134,22 +134,23 @@ mapeamento_imagens = {
     "Tudo Dez": "Tudo dez.jpeg"
 }
 
-# Lista única de lojas
+# Criar lista única de todas as lojas
 todas_lojas = sorted(mapeamento_imagens.keys())
 
-# Session state
+# Inicializar session state
 if 'loja_selecionada' not in st.session_state:
     st.session_state.loja_selecionada = None
 
-# ---- TÍTULO ÚNICO ----
+# Header (AGORA SÓ 1)
 st.title("🗺️ Mapa das Lojas")
 
 # Layout principal
 col_mapa, col_foto = st.columns([1.2, 1])
 
 with col_mapa:
-    st.markdown("### 📍 Mapa das Lojas")
+    st.markdown("### 📍 Mapa")
 
+    # Exibir o mapa
     if os.path.exists("mapa.jpg"):
         st.markdown('<div class="mapa-container">', unsafe_allow_html=True)
         st.image("mapa.jpg", use_container_width=True)
@@ -158,7 +159,7 @@ with col_mapa:
         st.error("❌ Arquivo 'mapa.jpg' não encontrado na raiz do projeto")
 
     st.markdown(
-        '<div class="instructions">💡 <b>Instruções:</b> Selecione uma loja ao lado para ver a fachada</div>',
+        '<div class="instructions">💡 <b>Instruções:</b> Selecione uma loja na lista ao lado para ver sua fachada</div>',
         unsafe_allow_html=True
     )
 
@@ -182,38 +183,39 @@ with col_foto:
         nome_arquivo = mapeamento_imagens.get(loja_selecionada)
 
         if nome_arquivo:
-            caminhos = [
+            caminhos_possiveis = [
                 nome_arquivo,
                 f"images/{nome_arquivo}",
                 nome_arquivo.replace("images/", "")
             ]
 
-            encontrado = False
-            for caminho in caminhos:
+            imagem_encontrada = False
+            for caminho in caminhos_possiveis:
                 if os.path.exists(caminho):
                     st.markdown('<div class="foto-container">', unsafe_allow_html=True)
                     st.image(caminho, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-                    encontrado = True
+                    imagem_encontrada = True
                     break
 
-            if not encontrado:
+            if not imagem_encontrada:
                 st.warning(f"⚠️ Foto não encontrada: `{nome_arquivo}`")
+                st.info("Verifique se o arquivo está na raiz ou na pasta `images/`")
         else:
             st.error("❌ Loja não mapeada.")
     else:
-        st.info("👈 Veja o mapa e selecione uma loja")
+        st.info("👈 Selecione uma loja acima")
 
         st.markdown("---")
-        st.markdown("**📊 Estatísticas do Mapa:**")
+        st.markdown("**📊 Estatísticas:**")
         st.metric("Total de Lojas", len(todas_lojas))
-        st.metric("Imagens Mapeadas", len(mapeamento_imagens))
+        st.metric("Imagens Mapeadas", len([x for x in mapeamento_imagens.values()]))
 
 # Footer
 st.markdown("---")
-st.caption("🏢 Mapa das lojas do centro | Desenvolvido para apresentação executiva")
+st.caption("🏢 Mapa das lojas do centro — Desenvolvido para apresentação executiva")
 
-# Botão reset
+# Botão de reset
 if st.session_state.loja_selecionada:
     if st.button("🔄 Resetar Seleção", use_container_width=True):
         st.session_state.loja_selecionada = None
