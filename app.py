@@ -2,64 +2,59 @@ import streamlit as st
 import base64
 import os
 
-st.set_page_config(page_title="Mapeamento lojas centro", layout="wide")
+st.set_page_config(page_title="Mapa Interativo", layout="wide")
 
-st.title("🗺️ Mapa Interativo com Hover")
+st.title("🗺️ Mapa Interativo — Hover nas Lojas")
 
-# ===== CARREGA O MAPA =====
+# ========= MOSTRA O MAPA =========
 mapa_path = "mapa.jpg"
 if not os.path.exists(mapa_path):
-    st.error("Arquivo mapa.jpg não encontrado.")
+    st.error("Arquivo mapa.jpg não encontrado no diretório do app.")
 else:
     st.image(mapa_path, use_column_width=True)
 
-st.write("Passe o mouse sobre os nomes no mapa para ver as fachadas.")
+st.write("Passe o mouse sobre os nomes do mapa para ver as fachadas.")
 
-# ===== CARREGAR TODAS AS IMAGENS DAS FACHADAS =====
+# ========= FUNÇÃO PARA CONVERTER IMAGEM EM BASE64 =========
 def carregar_imagem_base64(path):
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode()
 
-# mapeamento automático: usa o nome do arquivo como chave (sem extensão)
+# ========= MAPEAMENTO AUTOMÁTICO (usa nome do arquivo) =========
 mapeamento = {}
-for arq in os.listdir('.'):
-    if arq.lower().endswith((".jpg", ".jpeg", ".png")) and arq != "mapa.jpg":
-        chave = os.path.splitext(arq)[0].strip().lower()  # nome base
-        mapeamento[chave] = carregar_imagem_base64(arq)
+for arquivo in os.listdir('.'):
+    if arquivo.lower().endswith((".jpg", ".jpeg", ".png")) and arquivo != "mapa.jpg":
+        chave = os.path.splitext(arquivo)[0].strip().lower()
+        mapeamento[chave] = carregar_imagem_base64(arquivo)
 
-# ===== CSS PARA O POPUP =====
+# ========= CSS PARA POPUP =========
 st.markdown("""
 <style>
 .tooltip {
   position: relative;
-  display: inline-block;
   font-weight: bold;
   color: #00e1ff;
   cursor: pointer;
+  padding: 4px;
 }
-
 .tooltip .tooltip-image {
   visibility: hidden;
   width: 260px;
-  background: #000;
+  background: black;
   padding: 6px;
   border-radius: 10px;
   position: absolute;
-  z-index: 10;
-  top: 20px;
+  z-index: 99;
+  top: 22px;
   left: 0px;
 }
-
 .tooltip:hover .tooltip-image {
   visibility: visible;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ===== GERAR HTML DINÂMICO DOS NOMES =====
-# o usuário vai colocar manualmente a lista de nomes conforme aparece no mapa
-# você precisa substituir abaixo pelos nomes EXATOS do mapa!
-
+# ========= NOMES EXATOS DO MAPA (extraídos da imagem) =========
 nomes_no_mapa = [
     "niuzzi",
     "para alugar ibagy",
@@ -71,10 +66,12 @@ nomes_no_mapa = [
     "tudo dez"
 ]
 
-html = "<h3>Lojas Detectadas</h3>"
+# ========= GERAR HTML INTERATIVO =========
+html = "<h3>Lojas Detectadas no Projeto</h3>"
 
 for nome in nomes_no_mapa:
     chave = nome.lower().strip()
+
     if chave in mapeamento:
         img64 = mapeamento[chave]
         html += f"""
@@ -83,6 +80,6 @@ for nome in nomes_no_mapa:
         </div><br>
         """
     else:
-        html += f"<div style='color:red'>{nome} — imagem não encontrada</div>"
+        html += f"<div style='color:red'>{nome} — imagem NÃO encontrada</div>"
 
 st.markdown(html, unsafe_allow_html=True)
