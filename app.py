@@ -2,7 +2,7 @@ import streamlit as st
 import base64
 import os
 
-st.set_page_config(page_title="Mapa Interativo", layout="wide")
+st.set_page_config(page_title="Mapeamento lojas centro", layout="wide")
 
 st.title("🗺️ Mapa Interativo com Hover")
 
