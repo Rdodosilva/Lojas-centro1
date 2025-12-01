@@ -2,63 +2,91 @@ import streamlit as st
 import os
 from pathlib import Path
 
-# Configuração da página
+# ==============================
+# CONFIGURAÇÃO DA PÁGINA
+# ==============================
 st.set_page_config(
     page_title="Mapa das Lojas",
     page_icon="🗺️",
     layout="wide"
 )
 
-# CSS customizado
+# ==============================
+# CSS MODERNO / VISUAL MELHORADO
+# ==============================
 st.markdown("""
 <style>
+
+    /* Fundo da página */
     .main {
-        background-color: #f8f9fa;
+        background-color: #f5f6fa;
     }
-    
+
+    /* Título */
+    .main-title {
+        font-size: 44px;
+        font-weight: 800;
+        padding: 0;
+        margin-bottom: -10px;
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Contêiner do mapa */
     .mapa-container {
-        border-radius: 15px;
+        border-radius: 18px;
         overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        margin: 20px 0;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+        margin: 25px 0;
+        background: white;
+        padding: 12px;
     }
-    
+
+    /* Contêiner da imagem */
     .foto-container {
-        border-radius: 15px;
+        border-radius: 18px;
         overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        margin-top: 20px;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+        margin-top: 25px;
         background: white;
         padding: 20px;
     }
-    
+
+    /* Card da loja selecionada */
     .store-info {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #6a5acd 0%, #8250df 100%);
         color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         margin-bottom: 20px;
         text-align: center;
     }
-    
+
     .store-name-big {
-        font-size: 28px;
+        font-size: 30px;
         font-weight: 700;
         margin: 0;
     }
-    
+
+    /* Aviso amarelo */
     .instructions {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
+        background: #fff1b8;
+        border-left: 5px solid #ffcd39;
         padding: 15px;
-        border-radius: 8px;
-        margin: 20px 0;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-size: 16px;
     }
+
 </style>
 """, unsafe_allow_html=True)
 
-# Mapeamento: Nome no mapa -> Nome do arquivo
+# ==============================
+# MAPA DE NOMES → IMAGENS
+# ==============================
 mapeamento_imagens = {
     "Magazine Luiza": "Magazine Luiza.jpeg",
     "Cia do H": "Cia do Homem.jpeg",
@@ -68,18 +96,14 @@ mapeamento_imagens = {
     "ViVo": "Lojas Vivo.jpeg",
     "Bazar das chaves": "Bazar das chave - Panvel.jpeg",
     "Panvel": "Bazar das chave - Panvel.jpeg",
-
     "Nfuzzi": "Nluzzi.jpeg",
     "Para Alugar IBAGY": "Aluga Ibagy.jpeg",
     "Botton Utilidades": "Botton Utilidades.jpeg",
     "bob's": "Bob's.jpeg",
     "Artigos Religiosos": "Itens Religiosos.jpeg",
-    "Caixa": "images/caixa.jpeg",
     "Achadinhos": "Achadinhos.jpeg",
     "U Mi Acessórios": "U mi Acessorios.jpeg",
     "Vonny cosmeticos": "Vonny cosmeticos.jpeg",
-
-    "Museu": "images/museu.jpeg",
     "Café do Frank": "Café do Frank.jpeg",
     "Massa Viva": "Massa Viva.jpeg",
     "Floripa Implante": "Foripa Implantes.jpeg",
@@ -87,7 +111,6 @@ mapeamento_imagens = {
     "Brasil Cacau": "Brasil cacau.jpeg",
     "Cia Do H": "Cia do Homem 1.jpeg",
     "Da Praça": "Da Praça.jpeg",
-
     "Mil Bijus": "Mil Bijus.jpeg",
     "Colombo": "Colombo.jpeg",
     "top1 Company": "Top 1 Company.jpeg",
@@ -108,7 +131,6 @@ mapeamento_imagens = {
     "Top1 Calçados": "Top 1 calçados.jpeg",
     "Sabor do Tempero": "Restaurante sabor de tempero.jpeg",
     "Procon": "Procon.jpeg",
-
     "Loja de Acessórios": "Loja de acessorios.jpeg",
     "Ótica Catarinense": "Otica catarinense.jpeg",
     "BMG": "Banco BMG.jpeg",
@@ -129,86 +151,77 @@ mapeamento_imagens = {
     "Tudo Dez": "Tudo dez.jpeg"
 }
 
-# Criar lista de lojas
 todas_lojas = sorted(mapeamento_imagens.keys())
 
-# Session state
-if 'loja_selecionada' not in st.session_state:
+# ==============================
+# SESSION STATE
+# ==============================
+if "loja_selecionada" not in st.session_state:
     st.session_state.loja_selecionada = None
 
-# Título principal
-st.title("🗺️ Mapa das Lojas")
+# ==============================
+# TÍTULO
+# ==============================
+st.markdown('<div class="main-title">🗺️ Mapa das Lojas</div>', unsafe_allow_html=True)
 
-# Layout principal
-col_mapa, col_foto = st.columns([1.2, 1])
+# ==============================
+# LAYOUT (MAPA + FOTO)
+# ==============================
+col_mapa, col_foto = st.columns([1.25, 1])
 
+# 📍 MAPA
 with col_mapa:
+    st.markdown("### 📍 Mapa")
 
-    # Exibir o mapa
     if os.path.exists("mapa.jpg"):
         st.markdown('<div class="mapa-container">', unsafe_allow_html=True)
         st.image("mapa.jpg", use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
-        st.error("❌ Arquivo 'mapa.jpg' não encontrado na raiz do projeto")
-    
-    st.markdown('<div class="instructions">💡 <b>Clique nas lojas na lateral para visualizar a fachada.</b></div>', 
-                unsafe_allow_html=True)
+        st.error("❌ Arquivo 'mapa.jpg' não foi encontrado!")
 
+# 🏪 SELETOR + FOTO
 with col_foto:
     st.markdown("### 🏪 Selecione uma Loja")
 
-    loja_selecionada = st.selectbox(
+    loja = st.selectbox(
         "Escolha a loja:",
-        ["Selecione uma loja..."] + todas_lojas,
-        key="loja_selector"
+        ["Selecione uma loja..."] + todas_lojas
     )
 
-    if loja_selecionada and loja_selecionada != "Selecione uma loja...":
+    if loja != "Selecione uma loja...":
+        st.session_state.loja_selecionada = loja
 
-        st.session_state.loja_selecionada = loja_selecionada
-
-        # Card da loja
         st.markdown(
-            f'<div class="store-info"><div class="store-name-big">📍 {loja_selecionada}</div></div>', 
+            f'<div class="store-info"><div class="store-name-big">📍 {loja}</div></div>',
             unsafe_allow_html=True
         )
 
-        # Buscar imagem
-        nome_arquivo = mapeamento_imagens.get(loja_selecionada)
+        arquivo = mapeamento_imagens.get(loja)
 
-        if nome_arquivo:
+        if arquivo:
             caminhos = [
-                nome_arquivo,
-                f"images/{nome_arquivo}",
-                nome_arquivo.replace("images/", "")
+                arquivo,
+                f"images/{arquivo}",
+                arquivo.replace("images/", "")
             ]
-            
-            encontrado = False
-            
-            for c in caminhos:
-                if os.path.exists(c):
+
+            exibida = False
+            for path in caminhos:
+                if os.path.exists(path):
                     st.markdown('<div class="foto-container">', unsafe_allow_html=True)
-                    st.image(c, use_container_width=True)
+                    st.image(path, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-                    encontrado = True
+                    exibida = True
                     break
-            
-            if not encontrado:
-                st.warning(f"⚠️ Foto não encontrada: `{nome_arquivo}`")
-        else:
-            st.error("❌ Loja não mapeada.")
-    
+
+            if not exibida:
+                st.warning(f"⚠️ Não encontrei a imagem: `{arquivo}`")
+
     else:
-        st.info("👈 Veja o mapa ao lado e selecione uma loja acima")
+        st.info("👈 Escolha uma loja acima para visualizar a fachada.")
 
-        st.markdown("---")
-        st.metric("Total de Lojas", len(todas_lojas))
-
-
-# Resetar seleção
-if st.session_state.loja_selecionada:
-    if st.button("🔄 Resetar Seleção", use_container_width=True):
-        st.session_state.loja_selecionada = None
-        st.rerun()
+# Rodapé
+st.markdown("---")
+st.caption("📍 Mapa das lojas do centro — Desenvolvido para apresentação executiva")
 
