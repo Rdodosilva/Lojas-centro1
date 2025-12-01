@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
+import json   #  <<<<<<<<<<  ESSENCIAL — estava faltando!
 
 # Configuração da página
 st.set_page_config(
@@ -201,88 +202,32 @@ html_code = f"""
             <h2 style="margin-top: 0; color: #333;">🗺️ Mapa Interativo</h2>
             <div style="position: relative; display: inline-block;">
                 <img id="mapa" src="mapa.jpg" alt="Mapa das Lojas">
-                
-                <!-- Posições dos textos no mapa (ajuste as coordenadas conforme necessário) -->
-                <!-- Rua Trajano - Esquerda -->
-                <div class="store-name" style="top: 15%; left: 5%;" onclick="mostrarLoja('Magazine Luiza')">Magazine Luiza</div>
-                <div class="store-name" style="top: 20%; left: 5%;" onclick="mostrarLoja('Cia do H')">Cia do H</div>
-                <div class="store-name" style="top: 25%; left: 5%;" onclick="mostrarLoja('Damiller')">Damiller</div>
-                <div class="store-name" style="top: 30%; left: 5%;" onclick="mostrarLoja('Pop Dente')">Pop Dente</div>
-                <div class="store-name" style="top: 35%; left: 5%;" onclick="mostrarLoja('Lupo')">Lupo</div>
-                <div class="store-name" style="top: 40%; left: 5%;" onclick="mostrarLoja('ViVo')">ViVo</div>
-                <div class="store-name" style="top: 45%; left: 5%;" onclick="mostrarLoja('Bazar das chaves')">Bazar das chaves</div>
-                <div class="store-name" style="top: 50%; left: 5%;" onclick="mostrarLoja('Panvel')">Panvel</div>
-                
-                <!-- Rua Trajano - Direita Superior -->
-                <div class="store-name" style="top: 8%; right: 5%;" onclick="mostrarLoja('Nfuzzi')">Nfuzzi</div>
-                <div class="store-name" style="top: 12%; right: 5%;" onclick="mostrarLoja('Para Alugar IBAGY')">Para Alugar IBAGY</div>
-                <div class="store-name" style="top: 16%; right: 5%;" onclick="mostrarLoja('Botton Utilidades')">Botton Utilidades</div>
-                <div class="store-name" style="top: 20%; right: 5%;" onclick="mostrarLoja(\"bob's\")">bob's</div>
-                <div class="store-name" style="top: 24%; right: 5%;" onclick="mostrarLoja('Artigos Religiosos')">Artigos Religiosos</div>
-                <div class="store-name" style="top: 28%; right: 5%;" onclick="mostrarLoja('Achadinhos')">Achadinhos</div>
-                <div class="store-name" style="top: 32%; right: 5%;" onclick="mostrarLoja('U Mi Acessórios')">U Mi Acessórios</div>
-                <div class="store-name" style="top: 36%; right: 5%;" onclick="mostrarLoja('Vonny cosmeticos')">Vonny cosmeticos</div>
-                
-                <!-- Rua Trajano - Direita Inferior -->
-                <div class="store-name" style="top: 45%; right: 5%;" onclick="mostrarLoja('Café do Frank')">Café do Frank</div>
-                <div class="store-name" style="top: 50%; right: 5%;" onclick="mostrarLoja('Massa Viva')">Massa Viva</div>
-                <div class="store-name" style="top: 55%; right: 5%;" onclick="mostrarLoja('Floripa Implante')">Floripa Implante</div>
-                <div class="store-name" style="top: 60%; right: 5%;" onclick="mostrarLoja('Preço Popular')">Preço Popular</div>
-                <div class="store-name" style="top: 65%; right: 5%;" onclick="mostrarLoja('Brasil Cacau')">Brasil Cacau</div>
-                
-                <!-- Rua Felipe Schmidt - Esquerda -->
-                <div class="store-name" style="top: 70%; left: 5%;" onclick="mostrarLoja('Mil Bijus')">Mil Bijus</div>
-                <div class="store-name" style="top: 74%; left: 5%;" onclick="mostrarLoja('Colombo')">Colombo</div>
-                <div class="store-name" style="top: 78%; left: 5%;" onclick="mostrarLoja('Tim')">Tim</div>
-                <div class="store-name" style="top: 82%; left: 5%;" onclick="mostrarLoja('Storil')">Storil</div>
-                <div class="store-name" style="top: 86%; left: 5%;" onclick="mostrarLoja('Mercadão')">Mercadão</div>
-                <div class="store-name" style="top: 90%; left: 5%;" onclick="mostrarLoja('Kotzias')">Kotzias</div>
-                
-                <!-- Rua Felipe Schmidt - Direita -->
-                <div class="store-name" style="top: 70%; right: 5%;" onclick="mostrarLoja('Ótica Catarinense')">Ótica Catarinense</div>
-                <div class="store-name" style="top: 74%; right: 5%;" onclick="mostrarLoja('BMG')">BMG</div>
-                <div class="store-name" style="top: 78%; right: 5%;" onclick="mostrarLoja('Claro')">Claro</div>
-                <div class="store-name" style="top: 82%; right: 5%;" onclick="mostrarLoja('Amo Biju')">Amo Biju</div>
-                <div class="store-name" style="top: 86%; right: 5%;" onclick="mostrarLoja('AgiBank')">AgiBank</div>
-                <div class="store-name" style="top: 90%; right: 5%;" onclick="mostrarLoja('Oboticário')">Oboticário</div>
-            </div>
-            
-            <div class="instructions">
-                💡 <strong>Instruções:</strong> Passe o mouse sobre os nomes das lojas no mapa e clique para ver a fachada
-            </div>
-        </div>
-        
-        <div class="foto-wrapper">
-            <div id="foto-content" class="placeholder">
-                👈 Clique em uma loja no mapa para ver sua fachada
-            </div>
-        </div>
-    </div>
+
+<script>
+    const mapeamento = {json.dumps(mapeamento_imagens, ensure_ascii=False)};
     
-    <script>
-        const mapeamento = {json.dumps(mapeamento_imagens, ensure_ascii=False)};
+    function mostrarLoja(nomeLoja) {{
+        const nomeArquivo = mapeamento[nomeLoja];
         
-        function mostrarLoja(nomeLoja) {{
-            const nomeArquivo = mapeamento[nomeLoja];
-            
-            if (nomeArquivo) {{
-                document.getElementById('foto-content').innerHTML = `
-                    <div class="foto-container">
-                        <div class="store-title">
-                            <h2>📍 ${{nomeLoja}}</h2>
-                        </div>
-                        <img src="${{nomeArquivo}}" alt="${{nomeLoja}}" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\\"placeholder\\">⚠️ Foto não encontrada<br><code>${{nomeArquivo}}</code></div>';">
+        if (nomeArquivo) {{
+            document.getElementById('foto-content').innerHTML = `
+                <div class="foto-container">
+                    <div class="store-title">
+                        <h2>📍 ${{nomeLoja}}</h2>
                     </div>
-                `;
-            }} else {{
-                document.getElementById('foto-content').innerHTML = `
-                    <div class="placeholder">
-                        ❌ Loja não mapeada: <strong>${{nomeLoja}}</strong>
-                    </div>
-                `;
-            }}
+                    <img src="${{nomeArquivo}}" alt="${{nomeLoja}}">
+                </div>
+            `;
+        }} else {{
+            document.getElementById('foto-content').innerHTML = `
+                <div class="placeholder">
+                    ❌ Loja não mapeada: <strong>${{nomeLoja}}</strong>
+                </div>
+            `;
         }}
-    </script>
+    }}
+</script>
+
 </body>
 </html>
 """
