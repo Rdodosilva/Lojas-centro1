@@ -1,64 +1,15 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import os
-from pathlib import Path
 
 # Configuração da página
 st.set_page_config(
-    page_title="Mapa de Lojas - Centro",
+    page_title="Mapa Interativo de Lojas",
     page_icon="🏪",
     layout="wide"
 )
 
-# CSS customizado
-st.markdown("""
-<style>
-    .main {
-        background-color: #f8f9fa;
-    }
-    
-    .mapa-container {
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        margin: 20px 0;
-    }
-    
-    .foto-container {
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        margin-top: 20px;
-        background: white;
-        padding: 20px;
-    }
-    
-    .store-info {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    
-    .store-name-big {
-        font-size: 28px;
-        font-weight: 700;
-        margin: 0;
-    }
-    
-    .instructions {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 20px 0;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Mapeamento: Nome no mapa -> Nome do arquivo
+# Mapeamento: Nome da loja -> Nome do arquivo
 mapeamento_imagens = {
     # Rua Trajano - Esquerda
     "Magazine Luiza": "Magazine Luiza.jpeg",
@@ -76,13 +27,11 @@ mapeamento_imagens = {
     "Botton Utilidades": "Botton Utilidades.jpeg",
     "bob's": "Bob's.jpeg",
     "Artigos Religiosos": "Itens Religiosos.jpeg",
-    "Caixa": "images/caixa.jpeg",  # Adicionar se tiver
     "Achadinhos": "Achadinhos.jpeg",
     "U Mi Acessórios": "U mi Acessorios.jpeg",
     "Vonny cosmeticos": "Vonny cosmeticos.jpeg",
     
     # Rua Trajano - Direita Inferior
-    "Museu": "images/museu.jpeg",  # Adicionar se tiver
     "Café do Frank": "Café do Frank.jpeg",
     "Massa Viva": "Massa Viva.jpeg",
     "Floripa Implante": "Foripa Implantes.jpeg",
@@ -134,90 +83,212 @@ mapeamento_imagens = {
     "Tudo Dez": "Tudo dez.jpeg"
 }
 
-# Criar lista única de todas as lojas
-todas_lojas = sorted(mapeamento_imagens.keys())
-
-# Inicializar session state
-if 'loja_selecionada' not in st.session_state:
-    st.session_state.loja_selecionada = None
-
-# Header
-st.title("🗺️ Mapa Interativo de Lojas do Centro")
-
-# Layout principal
-col_mapa, col_foto = st.columns([1.2, 1])
-
-with col_mapa:
-    st.markdown("### 📍 Mapa das Lojas")
-    
-    # Exibir o mapa
-    if os.path.exists("mapa.jpg"):
-        st.markdown('<div class="mapa-container">', unsafe_allow_html=True)
-        st.image("mapa.jpg", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        st.error("❌ Arquivo 'mapa.jpg' não encontrado na raiz do projeto")
-    
-    st.markdown('<div class="instructions">💡 <b>Instruções:</b> Selecione uma loja na lista ao lado para ver sua fachada</div>', 
-                unsafe_allow_html=True)
-
-with col_foto:
-    st.markdown("### 🏪 Selecione uma Loja")
-    
-    # Seletor de loja
-    loja_selecionada = st.selectbox(
-        "Escolha a loja:",
-        ["Selecione uma loja..."] + todas_lojas,
-        key="loja_selector"
-    )
-    
-    if loja_selecionada and loja_selecionada != "Selecione uma loja...":
-        st.session_state.loja_selecionada = loja_selecionada
+# Criar HTML interativo com o mapa
+html_code = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {{
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+        }}
         
-        # Mostrar info da loja
-        st.markdown(f'<div class="store-info"><div class="store-name-big">📍 {loja_selecionada}</div></div>', 
-                   unsafe_allow_html=True)
+        .container {{
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }}
         
-        # Buscar e exibir a imagem
-        nome_arquivo = mapeamento_imagens.get(loja_selecionada)
+        .mapa-wrapper {{
+            flex: 1.2;
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 20px;
+        }}
         
-        if nome_arquivo:
-            # Tentar encontrar o arquivo (com ou sem prefixo images/)
-            caminhos_possiveis = [
-                nome_arquivo,
-                f"images/{nome_arquivo}",
-                nome_arquivo.replace("images/", "")
-            ]
+        .foto-wrapper {{
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }}
+        
+        #mapa {{
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+        }}
+        
+        .store-name {{
+            position: absolute;
+            cursor: pointer;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            white-space: nowrap;
+        }}
+        
+        .store-name:hover {{
+            background: #ff4b4b;
+            color: white;
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(255, 75, 75, 0.4);
+            border-color: #ff4b4b;
+        }}
+        
+        .foto-container {{
+            text-align: center;
+        }}
+        
+        .foto-container img {{
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 20px;
+        }}
+        
+        .store-title {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }}
+        
+        .store-title h2 {{
+            margin: 0;
+            font-size: 24px;
+        }}
+        
+        .placeholder {{
+            color: #666;
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+        }}
+        
+        .instructions {{
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mapa-wrapper">
+            <h2 style="margin-top: 0; color: #333;">🗺️ Mapa Interativo</h2>
+            <div style="position: relative; display: inline-block;">
+                <img id="mapa" src="mapa.jpg" alt="Mapa das Lojas">
+                
+                <!-- Posições dos textos no mapa (ajuste as coordenadas conforme necessário) -->
+                <!-- Rua Trajano - Esquerda -->
+                <div class="store-name" style="top: 15%; left: 5%;" onclick="mostrarLoja('Magazine Luiza')">Magazine Luiza</div>
+                <div class="store-name" style="top: 20%; left: 5%;" onclick="mostrarLoja('Cia do H')">Cia do H</div>
+                <div class="store-name" style="top: 25%; left: 5%;" onclick="mostrarLoja('Damiller')">Damiller</div>
+                <div class="store-name" style="top: 30%; left: 5%;" onclick="mostrarLoja('Pop Dente')">Pop Dente</div>
+                <div class="store-name" style="top: 35%; left: 5%;" onclick="mostrarLoja('Lupo')">Lupo</div>
+                <div class="store-name" style="top: 40%; left: 5%;" onclick="mostrarLoja('ViVo')">ViVo</div>
+                <div class="store-name" style="top: 45%; left: 5%;" onclick="mostrarLoja('Bazar das chaves')">Bazar das chaves</div>
+                <div class="store-name" style="top: 50%; left: 5%;" onclick="mostrarLoja('Panvel')">Panvel</div>
+                
+                <!-- Rua Trajano - Direita Superior -->
+                <div class="store-name" style="top: 8%; right: 5%;" onclick="mostrarLoja('Nfuzzi')">Nfuzzi</div>
+                <div class="store-name" style="top: 12%; right: 5%;" onclick="mostrarLoja('Para Alugar IBAGY')">Para Alugar IBAGY</div>
+                <div class="store-name" style="top: 16%; right: 5%;" onclick="mostrarLoja('Botton Utilidades')">Botton Utilidades</div>
+                <div class="store-name" style="top: 20%; right: 5%;" onclick="mostrarLoja(\"bob's\")">bob's</div>
+                <div class="store-name" style="top: 24%; right: 5%;" onclick="mostrarLoja('Artigos Religiosos')">Artigos Religiosos</div>
+                <div class="store-name" style="top: 28%; right: 5%;" onclick="mostrarLoja('Achadinhos')">Achadinhos</div>
+                <div class="store-name" style="top: 32%; right: 5%;" onclick="mostrarLoja('U Mi Acessórios')">U Mi Acessórios</div>
+                <div class="store-name" style="top: 36%; right: 5%;" onclick="mostrarLoja('Vonny cosmeticos')">Vonny cosmeticos</div>
+                
+                <!-- Rua Trajano - Direita Inferior -->
+                <div class="store-name" style="top: 45%; right: 5%;" onclick="mostrarLoja('Café do Frank')">Café do Frank</div>
+                <div class="store-name" style="top: 50%; right: 5%;" onclick="mostrarLoja('Massa Viva')">Massa Viva</div>
+                <div class="store-name" style="top: 55%; right: 5%;" onclick="mostrarLoja('Floripa Implante')">Floripa Implante</div>
+                <div class="store-name" style="top: 60%; right: 5%;" onclick="mostrarLoja('Preço Popular')">Preço Popular</div>
+                <div class="store-name" style="top: 65%; right: 5%;" onclick="mostrarLoja('Brasil Cacau')">Brasil Cacau</div>
+                
+                <!-- Rua Felipe Schmidt - Esquerda -->
+                <div class="store-name" style="top: 70%; left: 5%;" onclick="mostrarLoja('Mil Bijus')">Mil Bijus</div>
+                <div class="store-name" style="top: 74%; left: 5%;" onclick="mostrarLoja('Colombo')">Colombo</div>
+                <div class="store-name" style="top: 78%; left: 5%;" onclick="mostrarLoja('Tim')">Tim</div>
+                <div class="store-name" style="top: 82%; left: 5%;" onclick="mostrarLoja('Storil')">Storil</div>
+                <div class="store-name" style="top: 86%; left: 5%;" onclick="mostrarLoja('Mercadão')">Mercadão</div>
+                <div class="store-name" style="top: 90%; left: 5%;" onclick="mostrarLoja('Kotzias')">Kotzias</div>
+                
+                <!-- Rua Felipe Schmidt - Direita -->
+                <div class="store-name" style="top: 70%; right: 5%;" onclick="mostrarLoja('Ótica Catarinense')">Ótica Catarinense</div>
+                <div class="store-name" style="top: 74%; right: 5%;" onclick="mostrarLoja('BMG')">BMG</div>
+                <div class="store-name" style="top: 78%; right: 5%;" onclick="mostrarLoja('Claro')">Claro</div>
+                <div class="store-name" style="top: 82%; right: 5%;" onclick="mostrarLoja('Amo Biju')">Amo Biju</div>
+                <div class="store-name" style="top: 86%; right: 5%;" onclick="mostrarLoja('AgiBank')">AgiBank</div>
+                <div class="store-name" style="top: 90%; right: 5%;" onclick="mostrarLoja('Oboticário')">Oboticário</div>
+            </div>
             
-            imagem_encontrada = False
-            for caminho in caminhos_possiveis:
-                if os.path.exists(caminho):
-                    st.markdown('<div class="foto-container">', unsafe_allow_html=True)
-                    st.image(caminho, use_container_width=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
-                    imagem_encontrada = True
-                    break
-            
-            if not imagem_encontrada:
-                st.warning(f"⚠️ Foto não encontrada: `{nome_arquivo}`")
-                st.info("Verifique se o arquivo está na raiz ou na pasta `images/`")
-        else:
-            st.error("❌ Loja não mapeada. Entre em contato com o suporte.")
-    else:
-        st.info("👈 Veja o mapa ao lado e selecione uma loja acima")
+            <div class="instructions">
+                💡 <strong>Instruções:</strong> Passe o mouse sobre os nomes das lojas no mapa e clique para ver a fachada
+            </div>
+        </div>
         
-        # Estatísticas
-        st.markdown("---")
-        st.markdown("**📊 Estatísticas do Mapa:**")
-        st.metric("Total de Lojas", len(todas_lojas))
-        st.metric("Imagens Mapeadas", len([x for x in mapeamento_imagens.values() if not x.startswith("images/")]))
+        <div class="foto-wrapper">
+            <div id="foto-content" class="placeholder">
+                👈 Clique em uma loja no mapa para ver sua fachada
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const mapeamento = {json.dumps(mapeamento_imagens, ensure_ascii=False)};
+        
+        function mostrarLoja(nomeLoja) {{
+            const nomeArquivo = mapeamento[nomeLoja];
+            
+            if (nomeArquivo) {{
+                document.getElementById('foto-content').innerHTML = `
+                    <div class="foto-container">
+                        <div class="store-title">
+                            <h2>📍 ${{nomeLoja}}</h2>
+                        </div>
+                        <img src="${{nomeArquivo}}" alt="${{nomeLoja}}" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\\"placeholder\\">⚠️ Foto não encontrada<br><code>${{nomeArquivo}}</code></div>';">
+                    </div>
+                `;
+            }} else {{
+                document.getElementById('foto-content').innerHTML = `
+                    <div class="placeholder">
+                        ❌ Loja não mapeada: <strong>${{nomeLoja}}</strong>
+                    </div>
+                `;
+            }}
+        }}
+    </script>
+</body>
+</html>
+"""
 
-# Footer
+# Renderizar o HTML
+components.html(html_code, height=900, scrolling=True)
+
 st.markdown("---")
-st.caption("🏢 Mapa das lojas do centro | Desenvolvido para apresentação executiva")
-
-# Botão de reset (opcional)
-if st.session_state.loja_selecionada:
-    if st.button("🔄 Resetar Seleção", use_container_width=True):
-        st.session_state.loja_selecionada = None
-        st.rerun()
+st.caption("🏢 Mapa Interativo de Lojas do Centro | Desenvolvido para apresentação executiva")
