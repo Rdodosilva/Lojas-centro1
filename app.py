@@ -62,7 +62,7 @@ st.markdown("""
 mapeamento_imagens = {
     # Rua Trajano - Esquerda
     "Magazine Luiza": "Magazine Luiza.jpeg",
-    "Cia. do Homem": "Cia do Homem.jpeg",
+    "Cia. Do Homem": "Cia do Homem.jpeg",
     "Damiller": "Damyller.jpeg",
     "Pop Dente": "Pop dente - Lupo.jpeg",
     "Lupo": "Pop dente - Lupo.jpeg",
