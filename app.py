@@ -105,7 +105,7 @@ mapeamento_imagens = {
     "Floripa Store": "Floripa store.jpeg",
     "JS Store": "JS Store.jpeg",
     "Fuccs": "Fucci's.jpeg",
-    "Vila Sucos": "Vita sucos.jpeg",
+    "Vita Sucos": "Vita sucos.jpeg",
     "Carioca cosmeticos": "Carioca cosmeticos.jpeg",
     "Irmãos": "Irmãos.jpeg",
     "Fasbindrt": "Fasbinder.jpeg",
