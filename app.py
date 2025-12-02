@@ -88,7 +88,7 @@ mapeamento_imagens = {
     "Floripa Implante": "Foripa Implantes.jpeg",
     "Preço Popular": "Preço popular.jpeg",
     "Brasil Cacau": "Brasil cacau.jpeg",
-    "Cia. do Homem": "Cia do Homem 1.jpeg",
+    "Cia. Do Homem": "Cia do Homem 1.jpeg",
     "Da Praça": "Da Praça.jpeg",
     
     # Rua Felipe Schmidt - Esquerda
