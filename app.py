@@ -62,7 +62,7 @@ st.markdown("""
 mapeamento_imagens = {
     # Rua Trajano - Esquerda
     "Magazine Luiza": "Magazine Luiza.jpeg",
-    "Cia do H": "Cia do Homem.jpeg",
+    "Cia. do Homem": "Cia do Homem.jpeg",
     "Damiller": "Damyller.jpeg",
     "Pop Dente": "Pop dente - Lupo.jpeg",
     "Lupo": "Pop dente - Lupo.jpeg",
@@ -88,7 +88,7 @@ mapeamento_imagens = {
     "Floripa Implante": "Foripa Implantes.jpeg",
     "Preço Popular": "Preço popular.jpeg",
     "Brasil Cacau": "Brasil cacau.jpeg",
-    "Cia Do H": "Cia do Homem 1.jpeg",
+    "Cia. Do Homem": "Cia do Homem 1.jpeg",
     "Da Praça": "Da Praça.jpeg",
     
     # Rua Felipe Schmidt - Esquerda
